@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "881187860598",
+    "project_id": "hydrosaurus",
+    "storage_bucket": "hydrosaurus.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881187860598:android:966b0f158c81a257abef57",
+        "android_client_info": {
+          "package_name": "com.example.hydrosaurus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANXfEMswb-RZFgXsHymZz5Rvk4xgQrcqU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
