@@ -1,7 +1,9 @@
 package com.example.hydrosaurus.viewModels
 
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,16 +37,7 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    fun createUserWithEmailAndPassword(email: String, password: String){
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    signInWithEmailAndPassword(email, password)
-                } else {
-                    Log.e("myTags", "createUserWithEmailAndPassword email: $email, password: $password went wrong")
-                }
-            }
-    }
+
 
 
     fun signOut() {
