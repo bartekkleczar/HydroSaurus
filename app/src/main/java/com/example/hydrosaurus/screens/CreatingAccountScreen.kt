@@ -1,5 +1,6 @@
 package com.example.hydrosaurus.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -90,6 +92,7 @@ fun CreatingAccountScreen(
         )
         Spacer(modifier = Modifier.height(25.dp))
         Row{
+            val context = LocalContext.current
             Button(onClick = {
                 creatingAccountViewModel.goToSignInUserWithEmailAndPassword()
             }) {
@@ -97,7 +100,9 @@ fun CreatingAccountScreen(
             }
             Spacer(modifier = Modifier.width(20.dp))
             Button(onClick = {
-                creatingAccountViewModel.createUserWithEmailAndPassword(email, password)
+                if (!creatingAccountViewModel.createUserWithEmailAndPassword(email, password)) {
+                    Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
+                }
             }) {
                 Text(text = "Create Account", fontSize = 20.sp)
             }
