@@ -1,6 +1,7 @@
 package com.example.hydrosaurus
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,9 +21,9 @@ import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.CreatingAccountViewModel
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
-    val authViewModel: AuthViewModel = AuthViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +38,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NavHost(navController = navController, startDestination = "auth") {
+                    NavHost(navController = navController, startDestination = "home") {
                         composable("auth") {
                             AuthenticationScreen(
                                 authViewModel = authViewModel,
@@ -51,6 +52,14 @@ class MainActivity : ComponentActivity() {
                         composable("home") {
                             HomeScreen(authViewModel = authViewModel, navController = navController)
                         }
+                    }
+
+                    val auth = FirebaseAuth.getInstance()
+
+                    val currentUser = auth.currentUser
+                    if (currentUser == null && navController.currentDestination != navController.findDestination("auth")) {
+                        authViewModel.authenticate()
+                        navController.navigate("auth")
                     }
                 }
             }
