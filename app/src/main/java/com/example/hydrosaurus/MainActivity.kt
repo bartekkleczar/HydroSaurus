@@ -1,7 +1,6 @@
 package com.example.hydrosaurus
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +19,7 @@ import com.example.hydrosaurus.screens.HomeScreen
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.CreatingAccountViewModel
+import com.example.hydrosaurus.viewModels.FirestoreViewModel
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val authViewModel: AuthViewModel = viewModel()
                 val creatingAccountViewModel: CreatingAccountViewModel = viewModel()
+                val firestoreViewModel: FirestoreViewModel = viewModel()
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -43,6 +44,7 @@ class MainActivity : ComponentActivity() {
                             AuthenticationScreen(
                                 authViewModel = authViewModel,
                                 creatingAccountViewModel,
+                                firestoreViewModel,
                                 navController
                             )
                         }
@@ -50,7 +52,7 @@ class MainActivity : ComponentActivity() {
                             CreatingAccountScreen(creatingAccountViewModel, navController)
                         }
                         composable("home") {
-                            HomeScreen(authViewModel = authViewModel, navController = navController)
+                            HomeScreen(authViewModel = authViewModel, navController = navController, firestoreViewModel = firestoreViewModel)
                         }
                     }
 
@@ -61,6 +63,7 @@ class MainActivity : ComponentActivity() {
                         authViewModel.authenticate()
                         navController.navigate("auth")
                     }
+                    firestoreViewModel.setup(this)
                 }
             }
         }
@@ -74,6 +77,7 @@ fun Prewiev() {
         val navController = rememberNavController()
         val authViewModel: AuthViewModel = viewModel()
         val creatingAccountViewModel: CreatingAccountViewModel = viewModel()
+        val firestoreViewModel: FirestoreViewModel = viewModel()
 
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -84,6 +88,7 @@ fun Prewiev() {
                     AuthenticationScreen(
                         authViewModel = authViewModel,
                         creatingAccountViewModel,
+                        firestoreViewModel,
                         navController
                     )
                 }
@@ -91,7 +96,11 @@ fun Prewiev() {
                     CreatingAccountScreen(creatingAccountViewModel, navController)
                 }
                 composable("home") {
-                    HomeScreen(authViewModel = authViewModel, navController = navController)
+                    HomeScreen(
+                        authViewModel = authViewModel,
+                        navController = navController,
+                        firestoreViewModel = firestoreViewModel
+                    )
                 }
             }
         }
