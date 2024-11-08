@@ -1,12 +1,15 @@
 package com.example.hydrosaurus.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,12 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.hydrosaurus.R
 import com.example.hydrosaurus.contains
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.CreateState
@@ -57,11 +62,18 @@ fun CreatingAccountScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.logohydro),
+            contentDescription = "Logo Hydrosaurus",
+            modifier = Modifier.size(300.dp).padding(bottom =50.dp)
+        )
+
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
             isError = email.isNotEmpty() && !(email.contains(x = '@')),
+            modifier = Modifier.padding(top = 25.dp),
             supportingText = {
                 if (email.isNotEmpty() && !(email.contains(x = '@'))) Text(text = "Must contain \"@\" sign")
             }
@@ -90,13 +102,13 @@ fun CreatingAccountScreen(
 
             }
         )
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(65.dp))
         Row{
             val context = LocalContext.current
             Button(onClick = {
                 creatingAccountViewModel.goToSignInUserWithEmailAndPassword()
             }) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go back")
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go back", Modifier.size(35.dp))
             }
             Spacer(modifier = Modifier.width(20.dp))
             Button(onClick = {
@@ -104,7 +116,7 @@ fun CreatingAccountScreen(
                     Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
                 }
             }) {
-                Text(text = "Create Account", fontSize = 20.sp)
+                Text(text = "Create Account", fontSize = 30.sp)
             }
         }
     }
