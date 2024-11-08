@@ -54,6 +54,8 @@ dependencies {
     //Icons
     implementation("androidx.compose.material:material-icons-extended")
 
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-firestore")
     implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.3")

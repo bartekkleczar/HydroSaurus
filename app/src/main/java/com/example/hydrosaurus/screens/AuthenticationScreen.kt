@@ -1,8 +1,6 @@
 package com.example.hydrosaurus.screens
 
-import android.content.Context
 import android.util.Log
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.getDrawable
 import androidx.navigation.NavHostController
 import com.example.hydrosaurus.R
 import com.example.hydrosaurus.contains
@@ -44,10 +41,10 @@ import com.example.hydrosaurus.viewModels.AuthState
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.CreateState
 import com.example.hydrosaurus.viewModels.CreatingAccountViewModel
-import com.google.firebase.auth.FirebaseAuth
+import com.example.hydrosaurus.viewModels.FirestoreViewModel
 
 @Composable
-fun AuthenticationScreen(authViewModel: AuthViewModel, creatingAccountViewModel: CreatingAccountViewModel, navController: NavHostController) {
+fun AuthenticationScreen(authViewModel: AuthViewModel, creatingAccountViewModel: CreatingAccountViewModel, firestoreViewModel: FirestoreViewModel, navController: NavHostController) {
     val authState = authViewModel.authState.collectAsState()
     val createState = creatingAccountViewModel.createState.collectAsState()
 
@@ -68,8 +65,16 @@ fun AuthenticationScreen(authViewModel: AuthViewModel, creatingAccountViewModel:
             if(createState.value == CreateState.CREATING) CreatingAccountScreen(creatingAccountViewModel, navController)
         }
         AuthState.AUTHENTICATED -> {
-            if(createState.value == CreateState.NOTCREATING) HomeScreen(authViewModel, navController)
-            if(createState.value == CreateState.CREATING) HomeScreen(authViewModel, navController)
+            if(createState.value == CreateState.NOTCREATING) HomeScreen(
+                authViewModel,
+                navController,
+                firestoreViewModel
+            )
+            if(createState.value == CreateState.CREATING) HomeScreen(
+                authViewModel,
+                navController,
+                firestoreViewModel
+            )
         }
     }
 }
