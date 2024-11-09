@@ -31,11 +31,6 @@ fun HomeScreen(
             Text("Sign Out")
         }
         Button(onClick = {
-            firestoreViewModel.createUserDocument("dupa", "dupa@")
-        }) {
-            Text("Put data")
-        }
-        Button(onClick = {
             firestoreViewModel.readUserDocument()
         }) {
             Text("Read data")
