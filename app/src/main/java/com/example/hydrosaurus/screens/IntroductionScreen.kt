@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,22 +58,13 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
 
         var firstStep by remember { mutableStateOf(true) }
 
-        val colorScheme = MaterialTheme.colorScheme
-
-        val first = colorScheme.tertiary
-        val second = colorScheme.secondary
-        val third = Color(colorScheme.primary.toArgb()-22)
-        val back = colorScheme.background
-
-        var backgroundColor by remember { mutableStateOf(first) }
         AnimatedVisibility(
             visible = firstStep,
             exit = fadeOut(animationSpec = tween(1000))
         ){
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = backgroundColor),
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -86,14 +78,11 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                     delay(2000)
                     secondMessageVisibility = true
                     firstMessageVisibility = false
-                    backgroundColor = second
                     delay(2000)
                     thirdMessageVisibility = true
                     firstMessageVisibility = true
-                    backgroundColor = third
                     delay(2000)
                     fourthMessageVisibility = true
-                    backgroundColor = back
                 }
 
 
@@ -121,7 +110,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Firstly we'll fulfill some information",
+                            text = "Firstly we'll fulfill some information...",
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 10.dp),
                             lineHeight = 40.sp,
@@ -156,7 +145,10 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Crossfade(targetState = currentStage, label = "DUPADUPA") { stage ->
+                Crossfade(
+                    targetState = currentStage,
+                    label = "crossfade",
+                ) { stage ->
                     when(stage){
                         0 -> Column(
                             Modifier.fillMaxWidth(),
@@ -215,7 +207,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                             horizontalAlignment = Alignment.CenterHorizontally
                         ){
                             Text(
-                                "App counts water in glasses, what is your standard glass size",
+                                "App counts water in glasses, what is your standard glass capacity",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 50.sp,
                                 lineHeight = 50.sp,
@@ -251,5 +243,5 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
 @Preview
 @Composable
 fun IntroductionPreview() {
-    //IntroductionScreen(navController = NavController())
+    IntroductionScreen(navController = NavController(LocalContext.current), introductionViewModel = IntroductionViewModel())
 }
