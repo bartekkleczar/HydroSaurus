@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -101,10 +102,11 @@ fun SignInScreen(authViewModel: AuthViewModel, creatingAccountViewModel: Creatin
             onValueChange = { email = it },
             label = { Text("Email") },
             isError = email.isNotEmpty() && !(email.contains(x = '@')),
-            modifier = Modifier.padding(top = 50.dp),
             supportingText = {
                 if (email.isNotEmpty() && !(email.contains(x = '@'))) Text(text = "Must contain \"@\" sign")
-            }
+            },
+            modifier = Modifier.fillMaxWidth(0.9f).padding(top = 50.dp)
+
         )
         OutlinedTextField(
             value = password,
@@ -115,7 +117,9 @@ fun SignInScreen(authViewModel: AuthViewModel, creatingAccountViewModel: Creatin
             supportingText = {
                 if (password.length < 6 && password.isNotEmpty()) Text(text = "Too short")
                 else if (password.length > 4096 && password.isNotEmpty()) Text(text = "Too long")
-            }
+            },
+            modifier = Modifier.fillMaxWidth(0.9f)
+
         )
         Spacer(modifier = Modifier.height(50.dp))
         val context = LocalContext.current
