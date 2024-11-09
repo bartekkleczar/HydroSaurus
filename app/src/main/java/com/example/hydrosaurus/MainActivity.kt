@@ -21,6 +21,7 @@ import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.CreatingAccountViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
+import com.example.hydrosaurus.viewModels.IntroductionViewModel
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -35,6 +36,7 @@ class MainActivity : ComponentActivity() {
                 val authViewModel: AuthViewModel = viewModel()
                 val creatingAccountViewModel: CreatingAccountViewModel = viewModel()
                 val firestoreViewModel: FirestoreViewModel = viewModel()
+                val introductionViewModel: IntroductionViewModel = viewModel()
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -56,7 +58,7 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(authViewModel = authViewModel, navController = navController, firestoreViewModel = firestoreViewModel)
                         }
                         composable("introduction") {
-                            IntroductionScreen(navController = navController)
+                            IntroductionScreen(navController = navController, introductionViewModel = introductionViewModel)
                         }
                     }
 

@@ -46,12 +46,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
+import com.example.hydrosaurus.viewModels.IntroductionViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IntroductionScreen(navController: NavController) {
+fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navController: NavController) {
     HydroSaurusTheme{
 
         var firstStep by remember { mutableStateOf(true) }
@@ -233,7 +234,8 @@ fun IntroductionScreen(navController: NavController) {
                                 modifier = Modifier.padding(bottom = 15.dp)
                             )
                             Button(onClick = {
-                                navController.navigate("auth")
+                                introductionViewModel.createUserDocument(name, goal, glass)
+                                introductionViewModel.finishIntroduction(navController)
                             }) {
                                 Icon(imageVector = Icons.Filled.Done, contentDescription = "Done", Modifier.size(35.dp))
                             }
