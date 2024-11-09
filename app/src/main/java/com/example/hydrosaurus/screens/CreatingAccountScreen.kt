@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,12 +52,6 @@ fun CreatingAccountScreen(
     var password by remember { mutableStateOf("") }
     var password2nd by remember { mutableStateOf("") }
 
-    val createState = creatingAccountViewModel.createState.collectAsState()
-    LaunchedEffect(key1 = createState.value) {
-        if (createState.value == CreateState.NOTCREATING) {
-            navController.navigate("auth")
-        }
-    }
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -73,10 +68,10 @@ fun CreatingAccountScreen(
             onValueChange = { email = it },
             label = { Text("Email") },
             isError = email.isNotEmpty() && !(email.contains(x = '@')),
-            modifier = Modifier.padding(top = 25.dp),
             supportingText = {
                 if (email.isNotEmpty() && !(email.contains(x = '@'))) Text(text = "Must contain \"@\" sign")
-            }
+            },
+            modifier = Modifier.padding(top = 25.dp).fillMaxWidth(0.9f),
         )
         OutlinedTextField(
             value = password,
@@ -87,7 +82,8 @@ fun CreatingAccountScreen(
             supportingText = {
                 if (password.length < 6 && password.isNotEmpty()) Text(text = "Too short")
                 else if (password.length > 4096 && password.isNotEmpty()) Text(text = "Too long")
-            }
+            },
+            modifier = Modifier.fillMaxWidth(0.9f)
         )
         OutlinedTextField(
             value = password2nd,
@@ -100,7 +96,8 @@ fun CreatingAccountScreen(
                 else if (password2nd.length < 6 && password2nd.isNotEmpty()) Text(text = "Too short")
                 else if (password2nd.length > 4096 && password2nd.isNotEmpty()) Text(text = "Too long")
 
-            }
+            },
+            modifier = Modifier.fillMaxWidth(0.9f)
         )
         Spacer(modifier = Modifier.height(65.dp))
         Row{
@@ -114,6 +111,8 @@ fun CreatingAccountScreen(
             Button(onClick = {
                 if (!creatingAccountViewModel.createUserWithEmailAndPassword(email, password)) {
                     Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_SHORT).show()
+                } else{
+                    navController.navigate("introduction")
                 }
             }) {
                 Text(text = "Create Account", fontSize = 30.sp)

@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.hydrosaurus.screens.AuthenticationScreen
 import com.example.hydrosaurus.screens.CreatingAccountScreen
 import com.example.hydrosaurus.screens.HomeScreen
+import com.example.hydrosaurus.screens.IntroductionScreen
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.CreatingAccountViewModel
@@ -53,6 +54,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("home") {
                             HomeScreen(authViewModel = authViewModel, navController = navController, firestoreViewModel = firestoreViewModel)
+                        }
+                        composable("introduction") {
+                            IntroductionScreen(navController = navController)
                         }
                     }
 
