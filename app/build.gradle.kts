@@ -54,6 +54,10 @@ dependencies {
     //Icons
     implementation("androidx.compose.material:material-icons-extended")
 
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.5")
+
+    implementation(platform("androidx.compose:compose-bom:2024.10.01"))
+
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-firestore")
     implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
