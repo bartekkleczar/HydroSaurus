@@ -75,13 +75,16 @@ fun HomeScreen(
                          fontWeight = FontWeight.Bold ,
                          textAlign = TextAlign.Center,
                          color = MaterialTheme.colorScheme.primary,
-                         modifier = Modifier.fillMaxWidth()
+                         modifier = Modifier.fillMaxWidth().clickable {
+                             authViewModel.signOut()
+                             navController.navigate("auth")
+                         }
                      )
                  })
         },
         bottomBar = {
             BottomAppBar(
-                modifier = Modifier.height(140.dp),
+                modifier = Modifier.height(130.dp),
                 actions = {
                     Column{
                         AddWaterTile(waterAmount = waterAmount)
@@ -105,7 +108,7 @@ fun HomeScreen(
                     progress = progress
                 )
                 Column(
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier.align(Alignment.Center).padding(top = 15.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -136,13 +139,6 @@ fun HomeScreen(
                         )
                     }
                 }
-            }
-            /*AddWaterTile(addWaterAmount)*/
-            Button(onClick = {
-                authViewModel.signOut()
-                navController.navigate("auth")
-            }) {
-                Text("Sign Out")
             }
             Spacer(modifier = Modifier.height(50.dp))
             LazyColumn {

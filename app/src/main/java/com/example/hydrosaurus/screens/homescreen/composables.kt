@@ -55,7 +55,7 @@ fun AddWaterTile(waterAmount: MutableState<Int>) {
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
-                .height(50.dp),
+                .height(40.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
