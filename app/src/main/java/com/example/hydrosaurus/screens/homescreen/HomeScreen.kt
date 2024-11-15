@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.hydrosaurus.R
 import com.example.hydrosaurus.screens.homescreen.RoundedCircularProgressIndicator
+import com.example.hydrosaurus.screens.homescreen.SwipeableWaterElementCard
 import com.example.hydrosaurus.screens.homescreen.WaterElementCard
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
@@ -189,7 +190,7 @@ fun HomeScreen(
                             containerColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
-                        WaterElementCard()
+                        SwipeableWaterElementCard(onDelete = {/*TODO*/})
                     }
                 }
             }
