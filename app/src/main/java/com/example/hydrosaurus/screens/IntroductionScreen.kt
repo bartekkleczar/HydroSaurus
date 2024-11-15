@@ -136,7 +136,6 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
         ) {
             var name by remember { mutableStateOf("") }
             var goal by remember { mutableFloatStateOf(0f) }
-            var glass by remember { mutableFloatStateOf(0f) }
 
             var currentStage by remember { mutableStateOf(0) }
             Column(
@@ -196,37 +195,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                                 modifier = Modifier.padding(bottom = 15.dp)
                             )
                             Button(onClick = {
-                                currentStage += 1
-                            }) {
-                                Icon(imageVector = Icons.Filled.Done, contentDescription = "Done", Modifier.size(35.dp))
-                            }
-                        }
-
-                        2 -> Column(
-                            Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ){
-                            Text(
-                                "App counts water in glasses, what is your standard glass capacity",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 50.sp,
-                                lineHeight = 50.sp,
-                                textAlign = TextAlign.Center
-                            )
-                            Slider(
-                                value = glass,
-                                onValueChange = {glass = it},
-                                steps = 19,
-                                valueRange = 0f..1000f
-                            )
-                            Text(
-                                text = "${glass}ml",
-                                fontWeight = FontWeight.Bold,
-                                lineHeight = 40.sp,
-                                modifier = Modifier.padding(bottom = 15.dp)
-                            )
-                            Button(onClick = {
-                                introductionViewModel.createUserDocument(name, goal, glass)
+                                introductionViewModel.createUserDocument(name, goal)
                                 introductionViewModel.finishIntroduction(navController)
                             }) {
                                 Icon(imageVector = Icons.Filled.Done, contentDescription = "Done", Modifier.size(35.dp))
