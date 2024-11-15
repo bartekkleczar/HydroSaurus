@@ -11,18 +11,17 @@ class IntroductionViewModel: ViewModel() {
         navController.navigate("auth")
     }
 
-    fun createUserDocument(name: String, goal: Float, glass: Float) {
+    fun createUserDocument(name: String, goal: Float) {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
 
-        Log.d("Firebase", "uid: $uid, user: ${listOf(name, goal, glass)}, ")
+        Log.d("Firebase", "uid: $uid, user: ${listOf(name, goal)}, ")
 
         if (uid != null) {
             val user = hashMapOf(
                 "name" to name,
                 "goal" to goal,
-                "glass" to glass,
                 "totalWater" to 0,
             )
             db.collection("users").document(uid).set(user)
