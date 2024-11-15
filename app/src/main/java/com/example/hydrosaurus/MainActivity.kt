@@ -15,7 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.hydrosaurus.screens.AuthenticationScreen
 import com.example.hydrosaurus.screens.CreatingAccountScreen
-import com.example.hydrosaurus.screens.HomeScreen
+import com.example.hydrosaurus.screens.homescreen.HomeScreen
 import com.example.hydrosaurus.screens.IntroductionScreen
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel

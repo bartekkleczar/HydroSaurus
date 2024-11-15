@@ -1,5 +1,10 @@
 package com.example.hydrosaurus.screens.homescreen
 
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,18 +36,145 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.hydrosaurus.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@Composable
+fun AddWaterTile(waterAmount: MutableState<Int>) {
+    Box(
+        Modifier.background(color = MaterialTheme.colorScheme.onSecondary)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .height(50.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            var isChanged = remember { mutableStateOf(true) }
+            val coroutineScope = rememberCoroutineScope()
+            val context = LocalContext.current
+
+            Image(
+                painter = painterResource(id = R.drawable.add),
+                contentDescription = "Add",
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        isChanged.value = false
+                        coroutineScope.launch {
+                            delay(400)
+                            waterAmount.value += 50
+                            delay(100)
+                            isChanged.value = true
+                        }
+                    }
+            )
+
+            AnimatedVisibility(
+                visible = isChanged.value,
+                enter = slideInHorizontally(animationSpec = tween(300)),
+                exit = slideOutHorizontally(animationSpec = tween(300))
+            ) {
+                Text(
+                    text = "${waterAmount.value}ml",
+                    fontSize = 30.sp,
+                )
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.minus),
+                contentDescription = "Minus",
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        if (waterAmount.value <= 50) {
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Water amount can't be bellow 50ml",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        } else {
+                            isChanged.value = false
+                            coroutineScope.launch {
+                                delay(400)
+                                waterAmount.value -= 50
+                                delay(100)
+                                isChanged.value = true
+                            }
+                        }
+                    }
+            )
+        }
+    }
+}
+
+@Composable
+fun WaterBottomAppBar(navController: NavController) {
+    Row(
+        Modifier
+            .fillMaxSize()
+            .padding(bottom = 15.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        val sizeOfIcons = 45
+        Image(
+            painter = painterResource(id = R.drawable.notificationbell),
+            contentDescription = "Notifications",
+            Modifier
+                .size(sizeOfIcons.dp)
+                .clickable { /*TODO*/ }
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.stats),
+            contentDescription = "Stats",
+            Modifier
+                .size(sizeOfIcons.dp)
+                .clickable { /*TODO*/ }
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.home),
+            contentDescription = "Home",
+            Modifier
+                .size((sizeOfIcons + 15).dp)
+                .clickable { /*TODO*/ }
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.user),
+            contentDescription = "User",
+            Modifier
+                .size(sizeOfIcons.dp)
+                .clickable { /*TODO*/ }
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.settings),
+            contentDescription = "Settings",
+            Modifier
+                .size(sizeOfIcons.dp)
+                .clickable { /*TODO*/ }
+        )
+    }
+}
 
 @Composable
 fun RoundedCircularProgressIndicator(
     progress: MutableState<Float>,
-    modifier: Modifier = Modifier.size(250.dp),
+    modifier: Modifier = Modifier.size(280.dp),
     color: Color = MaterialTheme.colorScheme.primary,
     strokeWidth: Float = 100f
 ) {

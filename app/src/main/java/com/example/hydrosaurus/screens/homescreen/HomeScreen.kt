@@ -1,18 +1,16 @@
-package com.example.hydrosaurus.screens
+package com.example.hydrosaurus.screens.homescreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -38,9 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.hydrosaurus.R
-import com.example.hydrosaurus.screens.homescreen.RoundedCircularProgressIndicator
-import com.example.hydrosaurus.screens.homescreen.SwipeableWaterElementCard
-import com.example.hydrosaurus.screens.homescreen.WaterElementCard
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
@@ -55,6 +50,7 @@ fun HomeScreen(
 ) {
     var progress = remember { mutableStateOf(0.1f) }
     var t = 0
+    var waterAmount = remember { mutableStateOf(50) }
     LaunchedEffect(progress){
         while (true){
             if (t == 0) {
@@ -85,52 +81,12 @@ fun HomeScreen(
         },
         bottomBar = {
             BottomAppBar(
+                modifier = Modifier.height(140.dp),
                 actions = {
-                    Row(
-                        Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        val sizeOfIcons = 45
-                        Image(
-                            painter = painterResource(id = R.drawable.notificationbell),
-                            contentDescription = "Notifications",
-                            Modifier
-                                .size(sizeOfIcons.dp)
-                                .clickable { /*TODO*/ }
-                        )
-
-                        Image(
-                            painter = painterResource(id = R.drawable.stats),
-                            contentDescription = "Stats",
-                            Modifier
-                                .size(sizeOfIcons.dp)
-                                .clickable { /*TODO*/ }
-                        )
-
-                        Image(
-                            painter = painterResource(id = R.drawable.home),
-                            contentDescription = "Home",
-                            Modifier
-                                .size((sizeOfIcons + 15).dp)
-                                .clickable { /*TODO*/ }
-                        )
-
-                        Image(
-                            painter = painterResource(id = R.drawable.user),
-                            contentDescription = "User",
-                            Modifier
-                                .size(sizeOfIcons.dp)
-                                .clickable { /*TODO*/ }
-                        )
-
-                        Image(
-                            painter = painterResource(id = R.drawable.settings),
-                            contentDescription = "Settings",
-                            Modifier
-                                .size(sizeOfIcons.dp)
-                                .clickable { /*TODO*/ }
-                        )
+                    Column{
+                        AddWaterTile(waterAmount = waterAmount)
+                        Spacer(modifier = Modifier.height(10.dp))
+                        WaterBottomAppBar(navController)
                     }
                 }
             )
@@ -163,16 +119,25 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
 
+                    Column(horizontalAlignment = Alignment.CenterHorizontally){
                         Image(
                             painter = painterResource(id = R.drawable.waterdrop),
                             contentDescription = "Glass of water",
                             Modifier
-                                .size(100.dp)
+                                .size(110.dp)
                                 .padding(top = 30.dp)
                                 .clickable { progress.value += 0.1f }
                         )
+                        Text(
+                            text = "${waterAmount.value}ml",
+                            modifier = Modifier,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
+            /*AddWaterTile(addWaterAmount)*/
             Button(onClick = {
                 authViewModel.signOut()
                 navController.navigate("auth")
