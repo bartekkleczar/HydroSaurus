@@ -10,7 +10,9 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,12 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.hydrosaurus.R
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.IntroductionViewModel
 import kotlinx.coroutines.coroutineScope
@@ -88,6 +93,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
 
                 Text(
                     text = "Nice to see you.",
+                    fontSize = 40.sp,
                     modifier = Modifier.padding(bottom = 10.dp),
                     lineHeight = 40.sp,
                             fontWeight = if (!firstMessageVisibility && !secondMessageVisibility) {
@@ -97,6 +103,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                 AnimatedVisibility(visible = secondMessageVisibility, enter = scaleIn(animationSpec = tween(500))) {
                     Text(
                         text = "Let's start taking care about your everyday hydration.",
+                        fontSize = 40.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(bottom = 10.dp),
                         lineHeight = 40.sp,
@@ -111,6 +118,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                     ) {
                         Text(
                             text = "Firstly we'll fulfill some information...",
+                            fontSize = 40.sp,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 10.dp),
                             lineHeight = 40.sp,
@@ -122,11 +130,13 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                     }
                 }
                 AnimatedVisibility(visible = fourthMessageVisibility, enter = scaleIn(animationSpec = tween(500))) {
-                    Button(onClick = {
-                        firstStep = false
-                    }) {
-                        Icon(imageVector = Icons.Filled.Start, contentDescription = "Start", Modifier.size(35.dp))
-                    }
+                    Image(
+                        painter = painterResource(R.drawable.right),
+                        contentDescription = "go",
+                        modifier = Modifier.clickable {
+                            firstStep = false
+                        }
+                    )
                 }
             }
         }
@@ -156,6 +166,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                             Text(
                                 "What's your name?",
                                 fontWeight = FontWeight.Bold,
+                                fontSize = 40.sp,
                                 lineHeight = 40.sp,
                             )
                             OutlinedTextField(
@@ -164,11 +175,10 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                                 label = { Text(text = "Input your name") },
                                 modifier = Modifier.padding(bottom = 15.dp)
                             )
-                            Button(onClick = {
-                                currentStage += 1
-                            }) {
-                                Icon(imageVector = Icons.Filled.Done, contentDescription = "Done", Modifier.size(35.dp))
-                            }
+                            Image(
+                                painter = painterResource(R.drawable.done),
+                                contentDescription = "done",
+                                Modifier.clickable { currentStage += 1 })
                         }
 
                         1 -> Column(
@@ -178,7 +188,7 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                             Text(
                                 "Hi $name, what's your goal?",
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 50.sp,
+                                fontSize = 40.sp,
                                 lineHeight = 50.sp,
                                 textAlign = TextAlign.Center
                             )
@@ -189,17 +199,20 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
                                 valueRange = 0f..4f
                             )
                             Text(
-                                text = "${goal}L",
+                                text = "${"%.1f".format(goal)}L",
                                 fontWeight = FontWeight.Bold,
+                                fontSize = 40.sp,
                                 lineHeight = 40.sp,
                                 modifier = Modifier.padding(bottom = 15.dp)
                             )
-                            Button(onClick = {
-                                introductionViewModel.createUserDocument(name, goal)
-                                introductionViewModel.finishIntroduction(navController)
-                            }) {
-                                Icon(imageVector = Icons.Filled.Done, contentDescription = "Done", Modifier.size(35.dp))
-                            }
+                            Image(
+                                painter = painterResource(R.drawable.done),
+                                contentDescription = "done",
+                                Modifier.clickable {
+                                    introductionViewModel.createUserDocument(name, goal)
+                                    introductionViewModel.finishIntroduction(navController)
+                                }
+                            )
                         }
                     }
 
@@ -212,5 +225,12 @@ fun IntroductionScreen(introductionViewModel: IntroductionViewModel, navControll
 @Preview
 @Composable
 fun IntroductionPreview() {
-    IntroductionScreen(navController = NavController(LocalContext.current), introductionViewModel = IntroductionViewModel())
+    HydroSaurusTheme{
+        Surface{
+            IntroductionScreen(
+                navController = NavController(LocalContext.current),
+                introductionViewModel = IntroductionViewModel()
+            )
+        }
+    }
 }
