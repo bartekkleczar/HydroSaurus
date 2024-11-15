@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.hydrosaurus.R
 import com.example.hydrosaurus.contains
+import com.example.hydrosaurus.screens.homescreen.HomeScreen
 import com.example.hydrosaurus.viewModels.AuthState
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.CreateState
