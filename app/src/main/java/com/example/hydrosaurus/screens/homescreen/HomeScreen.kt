@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,6 +51,8 @@ fun HomeScreen(
     var progress = remember { mutableStateOf(0.1f) }
     var t = 0
     var waterAmount = remember { mutableStateOf(50) }
+    firestoreViewModel.getFromUserDocumentProperty("name")
+    val name = firestoreViewModel.userDocumentContentName.collectAsState()
     LaunchedEffect(progress){
         while (true){
             if (t == 0) {
@@ -70,15 +72,17 @@ fun HomeScreen(
         topBar = {
                  TopAppBar(title = {
                      Text(
-                         text = "WELCOME NAME",
+                         text = "WELCOME ${name.value}",
                          fontSize = 25.sp,
                          fontWeight = FontWeight.Bold ,
                          textAlign = TextAlign.Center,
                          color = MaterialTheme.colorScheme.primary,
-                         modifier = Modifier.fillMaxWidth().clickable {
-                             authViewModel.signOut()
-                             navController.navigate("auth")
-                         }
+                         modifier = Modifier
+                             .fillMaxWidth()
+                             .clickable {
+                                 authViewModel.signOut()
+                                 navController.navigate("auth")
+                             }
                      )
                  })
         },
@@ -108,7 +112,9 @@ fun HomeScreen(
                     progress = progress
                 )
                 Column(
-                    modifier = Modifier.align(Alignment.Center).padding(top = 15.dp),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(top = 15.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
