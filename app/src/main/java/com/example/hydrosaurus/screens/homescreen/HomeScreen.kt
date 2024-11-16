@@ -84,7 +84,7 @@ fun HomeScreen(
         },
         bottomBar = {
             BottomAppBar(
-                modifier = Modifier.height(130.dp),
+                modifier = Modifier.height(120.dp),
                 actions = {
                     Column{
                         AddWaterTile(waterAmount = waterAmount)
@@ -140,7 +140,7 @@ fun HomeScreen(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             LazyColumn {
                 items(10) { item ->
                     Card(
