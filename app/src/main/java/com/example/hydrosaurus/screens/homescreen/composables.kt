@@ -67,7 +67,7 @@ fun AddWaterTile(waterAmount: MutableState<Int>) {
                 painter = painterResource(id = R.drawable.add),
                 contentDescription = "Add",
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(20.dp)
                     .clickable {
                         isChanged.value = false
                         coroutineScope.launch {
@@ -86,7 +86,7 @@ fun AddWaterTile(waterAmount: MutableState<Int>) {
             ) {
                 Text(
                     text = "${waterAmount.value}ml",
-                    fontSize = 30.sp,
+                    fontSize = 25.sp,
                 )
             }
 
@@ -94,7 +94,7 @@ fun AddWaterTile(waterAmount: MutableState<Int>) {
                 painter = painterResource(id = R.drawable.minus),
                 contentDescription = "Minus",
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(20.dp)
                     .clickable {
                         if (waterAmount.value <= 50) {
                             Toast
@@ -128,7 +128,7 @@ fun WaterBottomAppBar(navController: NavController) {
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Bottom
     ) {
-        val sizeOfIcons = 45
+        val sizeOfIcons = 35
         Image(
             painter = painterResource(id = R.drawable.notificationbell),
             contentDescription = "Notifications",
@@ -175,7 +175,7 @@ fun WaterBottomAppBar(navController: NavController) {
 fun RoundedCircularProgressIndicator(
     progress: MutableState<Float>,
     modifier: Modifier = Modifier.size(280.dp),
-    color: Color = MaterialTheme.colorScheme.primary,
+    color: Color = MaterialTheme.colorScheme.secondary,
     strokeWidth: Float = 100f
 ) {
     Canvas(
