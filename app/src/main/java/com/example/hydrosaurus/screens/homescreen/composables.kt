@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -175,23 +176,33 @@ fun WaterBottomAppBar(navController: NavController) {
 fun RoundedCircularProgressIndicator(
     progress: MutableState<Float>,
     modifier: Modifier = Modifier.size(280.dp),
-    color: Color = MaterialTheme.colorScheme.secondary,
+    color: Color = MaterialTheme.colorScheme.primaryContainer,
     strokeWidth: Float = 100f
 ) {
-    Canvas(
-        modifier = modifier.size(100.dp)
-    ) {
-        drawArc(
-            color = color,
-            startAngle = -90f,
-            sweepAngle = 360 * progress.value,
-            useCenter = false,
-            style = Stroke(
-                width = strokeWidth,
-                cap = StrokeCap.Round,
-            )
+    Box(modifier = Modifier
+        .background(
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = CircleShape
         )
+        .size(320.dp),
+        contentAlignment = Alignment.Center
+    ){
+        Canvas(
+            modifier = modifier.size(100.dp)
+        ) {
+            drawArc(
+                color = color,
+                startAngle = -225f,
+                sweepAngle = 285 * progress.value,
+                useCenter = false,
+                style = Stroke(
+                    width = strokeWidth,
+                    cap = StrokeCap.Round,
+                )
+            )
+        }
     }
+
 }
 
 @Composable

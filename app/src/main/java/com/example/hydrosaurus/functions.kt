@@ -6,3 +6,11 @@ fun String.contains(x: Char): Boolean{
     }
     return false
 }
+
+fun String.checkIfAbleToFloat(): Int{
+    return try {
+        (this.toFloat()* 1000).toInt()
+    } catch (e: Exception){
+        0
+    }
+}

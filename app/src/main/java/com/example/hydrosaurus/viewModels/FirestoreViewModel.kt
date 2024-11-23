@@ -21,6 +21,7 @@ open class FirestoreViewModel() : ViewModel() {
         if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener { document ->
                 if (document != null) {
+                    Log.d("Firestore", "uid: $uid | email: ${auth.currentUser!!.email}")
                     Log.d("Firestore", "DocumentSnapshot data: ${document.data}")
                     state.value = document.data?.get(property).toString()
                 } else {
