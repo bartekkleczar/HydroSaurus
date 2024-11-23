@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
-    primaryContainer = primaryContainerLight,
+    primaryContainer = primaryLight,
     onPrimaryContainer = onPrimaryContainerLight,
     secondary = secondaryLight,
     onSecondary = onSecondaryLight,
@@ -45,7 +45,7 @@ private val lightScheme = lightColorScheme(
 private val darkScheme = darkColorScheme(
     primary = primaryDark,
     onPrimary = onPrimaryDark,
-    primaryContainer = primaryContainerDark,
+    primaryContainer = primaryDark,
     onPrimaryContainer = onPrimaryContainerDark,
     secondary = secondaryDark,
     onSecondary = onSecondaryDark,

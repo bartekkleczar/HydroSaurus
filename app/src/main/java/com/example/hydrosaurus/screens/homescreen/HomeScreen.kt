@@ -1,7 +1,9 @@
 package com.example.hydrosaurus.screens.homescreen
 
 import android.util.Log
+import android.view.RoundedCorner
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.hydrosaurus.R
+import com.example.hydrosaurus.checkIfAbleToFloat
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
@@ -53,11 +59,14 @@ fun HomeScreen(
     var waterAmount = remember { mutableStateOf(50) }
     var name = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("name", name)
+    var goal = remember { mutableStateOf("") }
+    firestoreViewModel.getFromUserDocumentProperty("goal", goal)
 
     LaunchedEffect(progress){
         while (true){
             if (t == 0) {
                 for (i in 0..18) {
+                    if(progress.value >= 0.95f) break
                     progress.value += 0.05f
                     delay(1000)
                 }
@@ -73,11 +82,10 @@ fun HomeScreen(
         topBar = {
                  TopAppBar(title = {
                      Text(
-                         text = "WELCOME ${name.value}",
+                         text = "WELCOME ${name.value}!",
                          fontSize = 25.sp,
                          fontWeight = FontWeight.Bold ,
                          textAlign = TextAlign.Center,
-                         color = MaterialTheme.colorScheme.primary,
                          modifier = Modifier
                              .fillMaxWidth()
                              .clickable {
@@ -104,13 +112,13 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-                .padding(top = 20.dp),
+                .padding(bottom = 5.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box {
                 RoundedCircularProgressIndicator(
-                    progress = progress
+                        progress = progress
                 )
                 Column(
                     modifier = Modifier
@@ -124,7 +132,7 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "/2000ml",
+                        text = "/${goal.value.checkIfAbleToFloat()}ml",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -148,17 +156,27 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            LazyColumn {
-                items(10) { item ->
-                    Card(
-                        modifier = Modifier
-                            .padding(vertical = 10.dp, horizontal = 20.dp)
-                            .height(60.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary
-                        )
-                    ) {
-                        SwipeableWaterElementCard(onDelete = {/*TODO*/})
+            Box(modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    shape = RoundedCornerShape(40.dp)
+                )
+            ){
+                LazyColumn(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 10.dp)
+                ) {
+                    items(10) { item ->
+                        Card(
+                            modifier = Modifier
+                                .padding(vertical = 10.dp, horizontal = 20.dp)
+                                .height(60.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary
+                            )
+                        ) {
+                            SwipeableWaterElementCard(onDelete = {/*TODO*/ })
+                        }
                     }
                 }
             }
