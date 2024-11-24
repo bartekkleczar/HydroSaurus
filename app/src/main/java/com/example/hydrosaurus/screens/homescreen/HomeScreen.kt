@@ -49,17 +49,20 @@ fun HomeScreen(
     navController: NavController,
     firestoreViewModel: FirestoreViewModel
 ) {
+
     var progress = remember { mutableStateOf(0.1f) }
     var t = 0
     var addWaterAmount = remember { mutableStateOf(50) }
     var waterAmount = remember { mutableStateOf(0) }
     var time = remember { mutableStateOf("") }
     //nie ta zmienna lol
-    firestoreViewModel.getFromUserRecord(waterAmount, time)
+    //firestoreViewModel.getFromUserRecord(waterAmount, time)
     var name = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("name", name)
     var goal = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
+
+    firestoreViewModel.getFromUserCertainRecord(waterAmount, year = 2024, month = 11, day = 24)
 
     Scaffold(
         topBar = {
@@ -111,13 +114,7 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "${firestoreViewModel.getFromUserRecord(
-                            waterAmount, 
-                            time, 
-                            mode = "certain", 
-                            year = LocalDateTime.now().year, 
-                            month = LocalDateTime.now().monthValue, 
-                            day = LocalDateTime.now().dayOfMonth)}",
+                        text = "${waterAmount.value}",
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -137,6 +134,7 @@ fun HomeScreen(
                                 .clickable {
                                     waterAmount.value += addWaterAmount.value
                                     firestoreViewModel.putUserRecord(addWaterAmount.value)
+                                    firestoreViewModel.getFromUserCertainRecord(waterAmount, year = 2024, month = 11, day = 24)
                                 }
                         )
                         Text(
