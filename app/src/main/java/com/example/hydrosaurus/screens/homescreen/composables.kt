@@ -210,7 +210,7 @@ fun RoundedCircularProgressIndicator(
 }
 
 @Composable
-fun WaterElementCard(modifier: Modifier) {
+fun WaterElementCard(record: HashMap<String, Any>, modifier: Modifier) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -230,7 +230,7 @@ fun WaterElementCard(modifier: Modifier) {
                 Modifier.size(30.dp)
             )
             Row {
-                Text(text = "Time")
+                Text(text = "${record["amount"]}")
             }
         }
     }
@@ -238,6 +238,7 @@ fun WaterElementCard(modifier: Modifier) {
 
 @Composable
 fun SwipeableWaterElementCard(
+    record: HashMap<String, Any>,
     onDelete: () -> Unit
 ) {
     var offsetX by remember { mutableStateOf(0f) }
@@ -265,6 +266,7 @@ fun SwipeableWaterElementCard(
         }
         val coroutineScope = rememberCoroutineScope()
         WaterElementCard(
+            record,
             modifier = Modifier
                 .fillMaxSize()
                 .offset { IntOffset(offsetX.toInt(), 0) }

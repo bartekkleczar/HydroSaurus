@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
@@ -40,7 +41,6 @@ import com.example.hydrosaurus.checkIfAbleToFloat
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +63,9 @@ fun HomeScreen(
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
 
     firestoreViewModel.getFromUserCertainRecord(waterAmount, year = 2024, month = 11, day = 24)
+
+    val recordList = remember { mutableStateOf(mutableListOf<HashMap<String, Any>>()) }
+    firestoreViewModel.getFromUserListOfRecordsAccDays(recordList, year = 2024, month = 11, day = 24)
 
     Scaffold(
         topBar = {
@@ -134,7 +137,12 @@ fun HomeScreen(
                                 .clickable {
                                     waterAmount.value += addWaterAmount.value
                                     firestoreViewModel.putUserRecord(addWaterAmount.value)
-                                    firestoreViewModel.getFromUserCertainRecord(waterAmount, year = 2024, month = 11, day = 24)
+                                    firestoreViewModel.getFromUserCertainRecord(
+                                        waterAmount,
+                                        year = 2024,
+                                        month = 11,
+                                        day = 24
+                                    )
                                 }
                         )
                         Text(
@@ -157,7 +165,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(vertical = 10.dp)
                 ) {
-                    items(10) { item ->
+                    items(items = recordList.value) { record ->
                         Card(
                             modifier = Modifier
                                 .padding(vertical = 10.dp, horizontal = 20.dp)
@@ -166,7 +174,7 @@ fun HomeScreen(
                                 containerColor = MaterialTheme.colorScheme.tertiary
                             )
                         ) {
-                            SwipeableWaterElementCard(onDelete = {/*TODO*/ })
+                            SwipeableWaterElementCard(record) {/*TODO*/ }
                         }
                     }
                 }

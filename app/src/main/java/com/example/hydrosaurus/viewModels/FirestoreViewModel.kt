@@ -85,4 +85,35 @@ open class FirestoreViewModel() : ViewModel() {
             }
         }
     }
+
+    fun getFromUserListOfRecordsAccDays(
+        list: MutableState<MutableList<HashMap<String, Any>>>,
+        year: Int = 0,
+        month: Int = 0,
+        day: Int = 0
+    ) {
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+        if (uid != null) {
+            db.collection(uid).whereEqualTo("year", year).whereEqualTo("monthValue", month).whereEqualTo("dayOfMonth", day).get().addOnSuccessListener {
+                    docs ->
+                for(doc in docs){
+                    list.value.add(hashMapOf(
+                        "amount" to doc.data["amount"].toString().toInt(),
+                        "dayOfWeek" to doc.data["dayOfWeek"].toString(),
+                        "month" to doc.data["month"].toString(),
+                        "hour" to doc.data["hour"].toString().toInt(),
+                        "year" to doc.data["year"].toString().toInt(),
+                        "dayOfMonth" to doc.data["dayOfMonth"].toString().toInt(),
+                        "dayOfYear" to doc.data["dayOfYear"].toString().toInt(),
+                        "monthValue" to doc.data["monthValue"].toString().toInt(),
+                        "minute" to doc.data["minute"].toString().toInt(),
+                        "second" to doc.data["second"].toString().toInt(),
+                    ))
+                    Log.d("Firestore", "GOT LIST::: ${list.value}")
+                }
+            }
+        }
+    }
 }
