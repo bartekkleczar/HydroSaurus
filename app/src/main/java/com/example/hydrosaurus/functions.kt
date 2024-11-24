@@ -1,6 +1,6 @@
 package com.example.hydrosaurus
 
-fun String.contains(x: Char): Boolean{
+fun String.containsChar(x: Char): Boolean{
     for (i in this){
         if(i == x) return true
     }

@@ -1,9 +1,8 @@
 package com.example.hydrosaurus.viewModels
 
 import android.util.Log
-import androidx.compose.material3.Text
 import androidx.lifecycle.ViewModel
-import com.example.hydrosaurus.contains
+import com.example.hydrosaurus.containsChar
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +23,7 @@ class CreatingAccountViewModel: ViewModel() {
 
     fun createUserWithEmailAndPassword(email: String, password: String): Boolean{
         var output = true
-        if (email.isEmpty() || !(email.contains(x = '@'))) return false
+        if (email.isEmpty() || !(email.containsChar(x = '@'))) return false
         if (password.isEmpty() || password.length < 6 || password.length > 4096) return false
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->

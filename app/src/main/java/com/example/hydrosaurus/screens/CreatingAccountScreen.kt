@@ -20,8 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,9 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.hydrosaurus.R
-import com.example.hydrosaurus.contains
-import com.example.hydrosaurus.viewModels.AuthViewModel
-import com.example.hydrosaurus.viewModels.CreateState
+import com.example.hydrosaurus.containsChar
 import com.example.hydrosaurus.viewModels.CreatingAccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,9 +63,9 @@ fun CreatingAccountScreen(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            isError = email.isNotEmpty() && !(email.contains(x = '@')),
+            isError = email.isNotEmpty() && !(email.containsChar(x = '@')),
             supportingText = {
-                if (email.isNotEmpty() && !(email.contains(x = '@'))) Text(text = "Must contain \"@\" sign")
+                if (email.isNotEmpty() && !(email.containsChar(x = '@'))) Text(text = "Must contain \"@\" sign")
             },
             modifier = Modifier.padding(top = 25.dp).fillMaxWidth(0.9f),
         )

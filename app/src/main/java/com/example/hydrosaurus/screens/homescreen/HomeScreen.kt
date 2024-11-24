@@ -1,7 +1,5 @@
 package com.example.hydrosaurus.screens.homescreen
 
-import android.util.Log
-import android.view.RoundedCorner
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
@@ -26,12 +23,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,7 +40,7 @@ import com.example.hydrosaurus.checkIfAbleToFloat
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
-import kotlinx.coroutines.delay
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,28 +51,16 @@ fun HomeScreen(
 ) {
     var progress = remember { mutableStateOf(0.1f) }
     var t = 0
-    var waterAmount = remember { mutableStateOf(50) }
+    var addWaterAmount = remember { mutableStateOf(50) }
+    var waterAmount = remember { mutableStateOf(0) }
+    var time = remember { mutableStateOf("") }
+    //nie ta zmienna lol
+    firestoreViewModel.getFromUserRecord(waterAmount, time)
     var name = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("name", name)
     var goal = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
 
-    LaunchedEffect(progress){
-        while (true){
-            if (t == 0) {
-                for (i in 0..18) {
-                    if(progress.value >= 0.95f) break
-                    progress.value += 0.05f
-                    delay(1000)
-                }
-                t = 1
-            }
-            if (t == 1) {
-                progress.value = 0f
-                t = 0
-            }
-        }
-    }
     Scaffold(
         topBar = {
                  TopAppBar(title = {
@@ -100,7 +83,7 @@ fun HomeScreen(
                 modifier = Modifier.height(120.dp),
                 actions = {
                     Column{
-                        AddWaterTile(waterAmount = waterAmount)
+                        AddWaterTile(waterAmount = addWaterAmount)
                         Spacer(modifier = Modifier.height(10.dp))
                         WaterBottomAppBar(navController)
                     }
@@ -118,7 +101,8 @@ fun HomeScreen(
         ) {
             Box {
                 RoundedCircularProgressIndicator(
-                        progress = progress
+                        progress = waterAmount,
+                    goal = goal
                 )
                 Column(
                     modifier = Modifier
@@ -127,7 +111,13 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "1000ml",
+                        text = "${firestoreViewModel.getFromUserRecord(
+                            waterAmount, 
+                            time, 
+                            mode = "certain", 
+                            year = LocalDateTime.now().year, 
+                            month = LocalDateTime.now().monthValue, 
+                            day = LocalDateTime.now().dayOfMonth)}",
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -144,10 +134,13 @@ fun HomeScreen(
                             Modifier
                                 .size(110.dp)
                                 .padding(top = 30.dp)
-                                .clickable { progress.value += 0.1f }
+                                .clickable {
+                                    waterAmount.value += addWaterAmount.value
+                                    firestoreViewModel.putUserRecord(addWaterAmount.value)
+                                }
                         )
                         Text(
-                            text = "${waterAmount.value}ml",
+                            text = "${addWaterAmount.value}ml",
                             modifier = Modifier,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold

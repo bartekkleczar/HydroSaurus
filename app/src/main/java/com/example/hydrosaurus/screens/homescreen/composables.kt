@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.hydrosaurus.R
+import com.example.hydrosaurus.checkIfAbleToFloat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -174,7 +175,8 @@ fun WaterBottomAppBar(navController: NavController) {
 
 @Composable
 fun RoundedCircularProgressIndicator(
-    progress: MutableState<Float>,
+    progress: MutableState<Int>,
+    goal: MutableState<String>,
     modifier: Modifier = Modifier.size(280.dp),
     color: Color = MaterialTheme.colorScheme.primaryContainer,
     strokeWidth: Float = 100f
@@ -190,10 +192,11 @@ fun RoundedCircularProgressIndicator(
         Canvas(
             modifier = modifier.size(100.dp)
         ) {
+            val progressState = progress.value.toFloat()/goal.value.checkIfAbleToFloat()
             drawArc(
                 color = color,
                 startAngle = -225f,
-                sweepAngle = 285 * progress.value,
+                sweepAngle = 285 * progressState,
                 useCenter = false,
                 style = Stroke(
                     width = strokeWidth,
