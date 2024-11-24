@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.hydrosaurus.R
-import com.example.hydrosaurus.contains
+import com.example.hydrosaurus.containsChar
 import com.example.hydrosaurus.screens.homescreen.HomeScreen
 import com.example.hydrosaurus.viewModels.AuthState
 import com.example.hydrosaurus.viewModels.AuthViewModel
@@ -102,9 +102,9 @@ fun SignInScreen(authViewModel: AuthViewModel, creatingAccountViewModel: Creatin
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            isError = email.isNotEmpty() && !(email.contains(x = '@')),
+            isError = email.isNotEmpty() && !(email.containsChar(x = '@')),
             supportingText = {
-                if (email.isNotEmpty() && !(email.contains(x = '@'))) Text(text = "Must contain \"@\" sign")
+                if (email.isNotEmpty() && !(email.containsChar(x = '@'))) Text(text = "Must contain \"@\" sign")
             },
             modifier = Modifier.fillMaxWidth(0.9f).padding(top = 50.dp)
 
