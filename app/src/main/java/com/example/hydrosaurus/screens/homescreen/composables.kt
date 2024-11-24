@@ -181,6 +181,7 @@ fun RoundedCircularProgressIndicator(
     color: Color = MaterialTheme.colorScheme.primaryContainer,
     strokeWidth: Float = 100f
 ) {
+    val afterMaximumColor = MaterialTheme.colorScheme.tertiary
     Box(modifier = Modifier
         .background(
             color = MaterialTheme.colorScheme.surfaceContainer,
@@ -194,9 +195,9 @@ fun RoundedCircularProgressIndicator(
         ) {
             val progressState = progress.value.toFloat()/goal.value.checkIfAbleToFloat()
             drawArc(
-                color = color,
+                color = if (progressState > 1f) afterMaximumColor else color,
                 startAngle = -225f,
-                sweepAngle = 285 * progressState,
+                sweepAngle = 270 * progressState,
                 useCenter = false,
                 style = Stroke(
                     width = strokeWidth,

@@ -8,7 +8,6 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 open class FirestoreViewModel() : ViewModel() {
 
@@ -16,7 +15,7 @@ open class FirestoreViewModel() : ViewModel() {
         FirebaseApp.initializeApp(context)
     }
 
-    fun getFromUserDocumentProperty(property: String, state: MutableState<String>){
+    fun getFromUserDocumentProperty(property: String, state: MutableState<String>) {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
@@ -36,7 +35,7 @@ open class FirestoreViewModel() : ViewModel() {
         }
     }
 
-    fun putUserRecord(amount: Int){
+    fun putUserRecord(amount: Int) {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
@@ -66,49 +65,24 @@ open class FirestoreViewModel() : ViewModel() {
     val localDateTime = LocalDateTime.parse(input, formatter)
     Log.e("Parsed Time", localDateTime.dayOfMonth.toString())*/
 
-    fun getFromUserRecord(stateAmount: MutableState<Int>, stateTime: MutableState<String>, mode: String = "uncertain", year: Int = 0, month: Int = 0, day: Int = 0){
+    fun getFromUserCertainRecord(
+        stateAmount: MutableState<Int>,
+        year: Int = 0,
+        month: Int = 0,
+        day: Int = 0
+    ) {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
-        if (uid != null && mode == "uncertain") {
-            db.collection(uid).get().addOnSuccessListener { document ->
-                document.documents.forEach {
-                    doc ->
-                    if (doc != null) {
-                        Log.d("Firestore", "DocumentSnapshot data: ${doc.data}")
-                        stateAmount.value = doc.data?.get("amount").toString().toInt()
-                        Log.d("Firestore", "${stateAmount.value}")
-
-                        stateTime.value = doc.data?.get("time").toString()
-                    } else {
-                        Log.d("Firestore", "No such document")
-                    }
+        if (uid != null) {
+            stateAmount.value = 0
+            db.collection(uid).whereEqualTo("year", year).whereEqualTo("monthValue", month).whereEqualTo("dayOfMonth", day).get().addOnSuccessListener {
+                docs ->
+                for(doc in docs){
+                    stateAmount.value += doc.data["amount"].toString().toInt()
+                    Log.d("Firestore", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
                 }
             }
-                .addOnFailureListener { exception ->
-                    Log.d("Firestore", "get failed with ", exception)
-                }
-        }
-        else if(uid != null && mode == "certain"){
-            db.collection(uid)
-            db.collection(uid).get().addOnSuccessListener { document ->
-                document.documents.forEach {
-                        doc ->
-                    val localDateTime = doc.data?.get("time") as Map<*, *>
-
-                    if (doc != null && localDateTime["year"] == year && localDateTime["monthValue"] == month && localDateTime["dayOfMonth"] == month) {
-                        Log.d("Firestore", "DocumentSnapshot data: ${doc.data}")
-                        stateAmount.value += doc.data?.get("amount").toString().toInt()
-                        stateAmount.value
-                        Log.d("Firestore", "${stateAmount.value}")
-                    } else {
-                        Log.d("Firestore", "No such document")
-                    }
-                }
-            }
-                .addOnFailureListener { exception ->
-                    Log.d("Firestore", "get failed with ", exception)
-                }
         }
     }
 }
