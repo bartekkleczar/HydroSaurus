@@ -60,12 +60,7 @@ open class FirestoreViewModel() : ViewModel() {
         }
     }
 
-    /*val input = "23/11/2024 20:33"
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-    val localDateTime = LocalDateTime.parse(input, formatter)
-    Log.e("Parsed Time", localDateTime.dayOfMonth.toString())*/
-
-    fun getFromUserCertainRecord(
+    fun getFromUserCurrentDayAmount(
         stateAmount: MutableState<Int>,
         year: Int = 0,
         month: Int = 0,
@@ -75,45 +70,60 @@ open class FirestoreViewModel() : ViewModel() {
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
         if (uid != null) {
-            stateAmount.value = 0
+            var newAmount = 0
             db.collection(uid).whereEqualTo("year", year).whereEqualTo("monthValue", month).whereEqualTo("dayOfMonth", day).get().addOnSuccessListener {
                 docs ->
+                Log.d("FirestoreCurrentDayAmount", "$year, $month, $day")
                 for(doc in docs){
-                    stateAmount.value += doc.data["amount"].toString().toInt()
-                    Log.d("Firestore", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
+                    newAmount += doc.data["amount"].toString().toInt()
+                    Log.d("FirestoreCurrentDayAmount", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
                 }
+                stateAmount.value = newAmount
             }
         }
     }
 
     fun getFromUserListOfRecordsAccDays(
-        list: MutableState<MutableList<HashMap<String, Any>>>,
-        year: Int = 0,
-        month: Int = 0,
-        day: Int = 0
+    year: Int = 0,
+    month: Int = 0,
+    day: Int = 0,
+    onResult: (List<Map<String, Any>>) -> Unit
     ) {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
+        val list = mutableListOf<Map<String, Any>>()
         if (uid != null) {
-            db.collection(uid).whereEqualTo("year", year).whereEqualTo("monthValue", month).whereEqualTo("dayOfMonth", day).get().addOnSuccessListener {
-                    docs ->
-                for(doc in docs){
-                    list.value.add(hashMapOf(
-                        "amount" to doc.data["amount"].toString().toInt(),
-                        "dayOfWeek" to doc.data["dayOfWeek"].toString(),
-                        "month" to doc.data["month"].toString(),
-                        "hour" to doc.data["hour"].toString().toInt(),
-                        "year" to doc.data["year"].toString().toInt(),
-                        "dayOfMonth" to doc.data["dayOfMonth"].toString().toInt(),
-                        "dayOfYear" to doc.data["dayOfYear"].toString().toInt(),
-                        "monthValue" to doc.data["monthValue"].toString().toInt(),
-                        "minute" to doc.data["minute"].toString().toInt(),
-                        "second" to doc.data["second"].toString().toInt(),
-                    ))
-                    Log.d("Firestore", "GOT LIST::: ${list.value}")
+            db.collection(uid)
+                .whereEqualTo("year", year)
+                .whereEqualTo("monthValue", month)
+                .whereEqualTo("dayOfMonth", day)
+                .get()
+                .addOnSuccessListener { docs ->
+                    for (doc in docs) {
+                        list.add(
+                            mapOf(
+                                "amount" to doc.data["amount"].toString().toInt(),
+                                "dayOfWeek" to doc.data["dayOfWeek"].toString(),
+                                "month" to doc.data["month"].toString(),
+                                "hour" to doc.data["hour"].toString().toInt(),
+                                "year" to doc.data["year"].toString().toInt(),
+                                "dayOfMonth" to doc.data["dayOfMonth"].toString().toInt(),
+                                "dayOfYear" to doc.data["dayOfYear"].toString().toInt(),
+                                "monthValue" to doc.data["monthValue"].toString().toInt(),
+                                "minute" to doc.data["minute"].toString().toInt(),
+                                "second" to doc.data["second"].toString().toInt(),
+                            )
+                        )
+                    }
+                    onResult(list)
                 }
-            }
+                .addOnFailureListener { exception ->
+                    Log.e("Firestore", "Error fetching data", exception)
+                    onResult(emptyList())
+                }
+        } else {
+            onResult(emptyList())
         }
     }
 }

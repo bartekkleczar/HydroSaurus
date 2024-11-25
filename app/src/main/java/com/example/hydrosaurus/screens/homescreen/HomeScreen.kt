@@ -24,7 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,6 +42,8 @@ import com.example.hydrosaurus.checkIfAbleToFloat
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
+import kotlinx.coroutines.delay
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,26 +53,18 @@ fun HomeScreen(
     firestoreViewModel: FirestoreViewModel
 ) {
 
-    var progress = remember { mutableStateOf(0.1f) }
-    var t = 0
-    var addWaterAmount = remember { mutableStateOf(50) }
-    var waterAmount = remember { mutableStateOf(0) }
-    var time = remember { mutableStateOf("") }
-    //nie ta zmienna lol
-    //firestoreViewModel.getFromUserRecord(waterAmount, time)
-    var name = remember { mutableStateOf("") }
+    val addWaterAmount = remember { mutableStateOf(50) }
+    val waterAmount = remember { mutableStateOf(0) }
+    val name = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("name", name)
-    var goal = remember { mutableStateOf("") }
+    val goal = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
 
-    firestoreViewModel.getFromUserCertainRecord(waterAmount, year = 2024, month = 11, day = 24)
-
-    val recordList = remember { mutableStateOf(mutableListOf<HashMap<String, Any>>()) }
-    firestoreViewModel.getFromUserListOfRecordsAccDays(
-        recordList,
-        year = 2024,
-        month = 11,
-        day = 24
+    firestoreViewModel.getFromUserCurrentDayAmount(
+        waterAmount,
+        year = LocalDateTime.now().year,
+        month = LocalDateTime.now().monthValue,
+        day = LocalDateTime.now().dayOfMonth,
     )
 
     Scaffold(
@@ -133,7 +127,7 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
 
-                    Column(horizontalAlignment = Alignment.CenterHorizontally){
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Image(
                             painter = painterResource(id = R.drawable.waterdrop),
                             contentDescription = "Glass of water",
@@ -143,11 +137,11 @@ fun HomeScreen(
                                 .clickable {
                                     waterAmount.value += addWaterAmount.value
                                     firestoreViewModel.putUserRecord(addWaterAmount.value)
-                                    firestoreViewModel.getFromUserCertainRecord(
+                                    firestoreViewModel.getFromUserCurrentDayAmount(
                                         waterAmount,
-                                        year = 2024,
-                                        month = 11,
-                                        day = 24
+                                        year = LocalDateTime.now().year,
+                                        month = LocalDateTime.now().monthValue,
+                                        day = LocalDateTime.now().dayOfMonth,
                                     )
                                 }
                         )
@@ -168,27 +162,46 @@ fun HomeScreen(
                         shape = RoundedCornerShape(40.dp)
                     )
             ) {
-                key(recordList) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(vertical = 10.dp)
-                    ) {
+                RecordsLazyColumn(firestoreViewModel = firestoreViewModel)
+            }
+        }
+    }
+}
 
-                        items(items = recordList.value) { record ->
-                            Card(
-                                modifier = Modifier
-                                    .padding(vertical = 10.dp, horizontal = 20.dp)
-                                    .height(60.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiary
-                                )
-                            ) {
-                                SwipeableWaterElementCard(record) {/*TODO*/ }
-                            }
-                        }
-                    }
-                }
+@Composable
+fun RecordsLazyColumn(
+    year: Int = LocalDateTime.now().year,
+    month: Int = LocalDateTime.now().monthValue,
+    day: Int = LocalDateTime.now().dayOfMonth,
+    firestoreViewModel: FirestoreViewModel
+) {
+    val list = remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            firestoreViewModel.getFromUserListOfRecordsAccDays(year, month, day) { fetchedList ->
+                list.value = fetchedList
+            }
+            delay(5000)
+        }
+    }
+
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 10.dp)
+    ) {
+
+        items(items = list.value) { record ->
+            Card(
+                modifier = Modifier
+                    .padding(vertical = 10.dp, horizontal = 20.dp)
+                    .height(60.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
+            ) {
+                SwipeableWaterElementCard(record) {/*TODO*/ }
             }
         }
     }

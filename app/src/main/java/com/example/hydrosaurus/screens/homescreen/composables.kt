@@ -210,7 +210,7 @@ fun RoundedCircularProgressIndicator(
 }
 
 @Composable
-fun WaterElementCard(record: HashMap<String, Any>, modifier: Modifier) {
+fun WaterElementCard(record: Map<String, Any>, modifier: Modifier) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -241,7 +241,7 @@ fun WaterElementCard(record: HashMap<String, Any>, modifier: Modifier) {
 
 @Composable
 fun SwipeableWaterElementCard(
-    record: HashMap<String, Any>,
+    record: Map<String, Any>,
     onDelete: () -> Unit
 ) {
     var offsetX by remember { mutableStateOf(0f) }
