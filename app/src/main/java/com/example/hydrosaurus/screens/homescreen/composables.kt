@@ -224,13 +224,16 @@ fun WaterElementCard(record: HashMap<String, Any>, modifier: Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.glassofwater),
-                contentDescription = "Glass of water",
-                Modifier.size(30.dp)
-            )
-            Row {
+            Row{
+                Image(
+                    painter = painterResource(id = R.drawable.glassofwater),
+                    contentDescription = "Glass of water",
+                    Modifier.size(30.dp)
+                )
                 Text(text = "${record["amount"]}")
+            }
+            Row {
+                Text(text = "Today, ${record["hour"]}:${record["minute"]}")
             }
         }
     }

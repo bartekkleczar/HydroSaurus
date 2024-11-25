@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -65,30 +66,35 @@ fun HomeScreen(
     firestoreViewModel.getFromUserCertainRecord(waterAmount, year = 2024, month = 11, day = 24)
 
     val recordList = remember { mutableStateOf(mutableListOf<HashMap<String, Any>>()) }
-    firestoreViewModel.getFromUserListOfRecordsAccDays(recordList, year = 2024, month = 11, day = 24)
+    firestoreViewModel.getFromUserListOfRecordsAccDays(
+        recordList,
+        year = 2024,
+        month = 11,
+        day = 24
+    )
 
     Scaffold(
         topBar = {
-                 TopAppBar(title = {
-                     Text(
-                         text = "WELCOME ${name.value}!",
-                         fontSize = 25.sp,
-                         fontWeight = FontWeight.Bold ,
-                         textAlign = TextAlign.Center,
-                         modifier = Modifier
-                             .fillMaxWidth()
-                             .clickable {
-                                 authViewModel.signOut()
-                                 navController.navigate("auth")
-                             }
-                     )
-                 })
+            TopAppBar(title = {
+                Text(
+                    text = "WELCOME ${name.value}!",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            authViewModel.signOut()
+                            navController.navigate("auth")
+                        }
+                )
+            })
         },
         bottomBar = {
             BottomAppBar(
                 modifier = Modifier.height(120.dp),
                 actions = {
-                    Column{
+                    Column {
                         AddWaterTile(waterAmount = addWaterAmount)
                         Spacer(modifier = Modifier.height(10.dp))
                         WaterBottomAppBar(navController)
@@ -107,7 +113,7 @@ fun HomeScreen(
         ) {
             Box {
                 RoundedCircularProgressIndicator(
-                        progress = waterAmount,
+                    progress = waterAmount,
                     goal = goal
                 )
                 Column(
@@ -155,26 +161,31 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Box(modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    shape = RoundedCornerShape(40.dp)
-                )
-            ){
-                LazyColumn(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 10.dp)
-                ) {
-                    items(items = recordList.value) { record ->
-                        Card(
-                            modifier = Modifier
-                                .padding(vertical = 10.dp, horizontal = 20.dp)
-                                .height(60.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary
-                            )
-                        ) {
-                            SwipeableWaterElementCard(record) {/*TODO*/ }
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        shape = RoundedCornerShape(40.dp)
+                    )
+            ) {
+                key(recordList) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 10.dp)
+                    ) {
+
+                        items(items = recordList.value) { record ->
+                            Card(
+                                modifier = Modifier
+                                    .padding(vertical = 10.dp, horizontal = 20.dp)
+                                    .height(60.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiary
+                                )
+                            ) {
+                                SwipeableWaterElementCard(record) {/*TODO*/ }
+                            }
                         }
                     }
                 }
