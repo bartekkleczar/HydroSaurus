@@ -53,78 +53,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-@Composable
-fun AddWaterTile(waterAmount: MutableState<Int>) {
-    Box(
-        Modifier.background(color = MaterialTheme.colorScheme.onSecondary)
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .height(40.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            var isChanged = remember { mutableStateOf(true) }
-            val coroutineScope = rememberCoroutineScope()
-            val context = LocalContext.current
 
-            Image(
-                painter = painterResource(id = R.drawable.add),
-                contentDescription = "Add",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable {
-                        isChanged.value = false
-                        coroutineScope.launch {
-                            delay(400)
-                            waterAmount.value += 50
-                            delay(100)
-                            isChanged.value = true
-                        }
-                    }
-            )
-
-            AnimatedVisibility(
-                visible = isChanged.value,
-                enter = slideInHorizontally(animationSpec = tween(300)),
-                exit = slideOutHorizontally(animationSpec = tween(300))
-            ) {
-                Text(
-                    text = "${waterAmount.value}ml",
-                    fontSize = 25.sp,
-                )
-            }
-
-            Image(
-                painter = painterResource(id = R.drawable.minus),
-                contentDescription = "Minus",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable {
-                        if (waterAmount.value <= 50) {
-                            Toast
-                                .makeText(
-                                    context,
-                                    "Water amount can't be bellow 50ml",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
-                        } else {
-                            isChanged.value = false
-                            coroutineScope.launch {
-                                delay(400)
-                                waterAmount.value -= 50
-                                delay(100)
-                                isChanged.value = true
-                            }
-                        }
-                    }
-            )
-        }
-    }
-}
 
 @Composable
 fun WaterBottomAppBar(navController: NavController) {
