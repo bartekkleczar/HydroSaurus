@@ -19,6 +19,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -86,11 +87,13 @@ fun HomeScreen(
         },
         bottomBar = {
             BottomAppBar(
-                modifier = Modifier.height(120.dp),
+                modifier = Modifier.height(150.dp),
                 actions = {
-                    Column {
-                        AddWaterTile(waterAmount = addWaterAmount)
-                        Spacer(modifier = Modifier.height(10.dp))
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        NewAddWaterTile(waterAmount = addWaterAmount)
+                        HorizontalDivider(thickness = 2.dp)
                         WaterBottomAppBar(navController)
                     }
                 }
@@ -143,6 +146,7 @@ fun HomeScreen(
                                         month = LocalDateTime.now().monthValue,
                                         day = LocalDateTime.now().dayOfMonth,
                                     )
+                                    addWaterAmount.value = 50
                                 }
                         )
                         Text(
