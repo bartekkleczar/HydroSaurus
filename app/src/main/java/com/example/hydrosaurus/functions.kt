@@ -14,3 +14,10 @@ fun String.checkIfAbleToFloat(): Int{
         0
     }
 }
+
+fun Any?.minutesCorrection(): String{
+    return if (this.toString().length == 1){
+        "${this}0"
+    }
+    else this.toString()
+}

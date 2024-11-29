@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import com.example.hydrosaurus.minutesCorrection
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -144,7 +145,7 @@ open class FirestoreViewModel() : ViewModel() {
         if (uid != null) {
             db.collection(uid).document("$year-$month-${day}T$hour:$minute:$sec").delete().addOnSuccessListener{
                     _ ->
-                Toast.makeText(context, "Record $hour:$minute:$sec deleted successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Record $hour:${minute.minutesCorrection()}:$sec deleted successfully", Toast.LENGTH_SHORT).show()
             }
         }
     }
