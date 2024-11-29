@@ -2,7 +2,9 @@ package com.example.hydrosaurus.viewModels
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -54,7 +56,7 @@ open class FirestoreViewModel() : ViewModel() {
                 "second" to time.second,
             )
 
-            db.collection(uid).document(time.toString()).set(record)
+            db.collection(uid).document("${time.year}-${time.monthValue}-${time.dayOfMonth}T${time.hour}:${time.minute}:${time.second}").set(record)
                 .addOnSuccessListener { Log.d("Firestore", "$record") }
                 .addOnFailureListener { e -> Log.e("Firestore", "Error saving record data", e) }
         }
@@ -124,6 +126,26 @@ open class FirestoreViewModel() : ViewModel() {
                 }
         } else {
             onResult(emptyList())
+        }
+    }
+
+    fun deleteFromUserCertainRecord(
+        year: Int = 0,
+        month: Int = 0,
+        day: Int = 0,
+        hour: Int = 0,
+        minute: Int = 0,
+        sec: Int = 0,
+        context: Context
+    ) {
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+        if (uid != null) {
+            db.collection(uid).document("$year-$month-${day}T$hour:$minute:$sec").delete().addOnSuccessListener{
+                    _ ->
+                Toast.makeText(context, "Record $hour:$minute:$sec deleted successfully", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
