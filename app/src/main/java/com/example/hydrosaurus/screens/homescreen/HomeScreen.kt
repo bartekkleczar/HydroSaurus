@@ -67,7 +67,7 @@ fun HomeScreen(
         topBar = {
             TopAppBar(title = {
                 Text(
-                    text = "WELCOME ${name.value}!",
+                    text = "Welcome ${name.value}!",
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,

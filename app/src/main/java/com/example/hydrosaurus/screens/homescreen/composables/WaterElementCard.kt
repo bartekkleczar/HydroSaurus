@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.hydrosaurus.R
+import com.example.hydrosaurus.minutesCorrection
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -58,7 +59,7 @@ fun WaterElementCard(record: Map<String, Any>, modifier: Modifier) {
                 Text(text = "${record["amount"]}")
             }
             Row {
-                Text(text = "Today, ${record["hour"]}:${record["minute"]}")
+                Text(text = "Today, ${record["hour"]}:${record["minute"].minutesCorrection()}")
             }
         }
     }
