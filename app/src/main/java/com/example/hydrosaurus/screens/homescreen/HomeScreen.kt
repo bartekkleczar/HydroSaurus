@@ -162,50 +162,13 @@ fun HomeScreen(
                         shape = RoundedCornerShape(40.dp)
                     )
             ) {
-                RecordsLazyColumn(firestoreViewModel = firestoreViewModel)
+                RecordsLazyColumn(waterAmount, firestoreViewModel = firestoreViewModel)
             }
         }
     }
 }
 
-@Composable
-fun RecordsLazyColumn(
-    year: Int = LocalDateTime.now().year,
-    month: Int = LocalDateTime.now().monthValue,
-    day: Int = LocalDateTime.now().dayOfMonth,
-    firestoreViewModel: FirestoreViewModel
-) {
-    val list = remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            firestoreViewModel.getFromUserListOfRecordsAccDays(year, month, day) { fetchedList ->
-                list.value = fetchedList
-            }
-            delay(5000)
-        }
-    }
 
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 10.dp)
-    ) {
-
-        items(items = list.value) { record ->
-            Card(
-                modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 20.dp)
-                    .height(60.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                )
-            ) {
-                SwipeableWaterElementCard(record) {/*TODO*/ }
-            }
-        }
-    }
-}
 
 @Preview
 @Composable
