@@ -12,23 +12,37 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +53,7 @@ import com.example.hydrosaurus.screens.homescreen.composables.*
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,110 +78,163 @@ fun HomeScreen(
         day = LocalDateTime.now().dayOfMonth,
     )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                Text(
-                    text = "Welcome ${name.value}!",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            authViewModel.signOut()
-                            navController.navigate("auth")
-                        }
-                )
-            })
-        },
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.height(150.dp),
-                actions = {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        NewAddWaterTile(waterAmount = addWaterAmount)
-                        HorizontalDivider(thickness = 2.dp)
-                        WaterBottomAppBar(navController)
+    val items = listOf(
+        NavigationItem(
+            title = "Home",
+            icon = painterResource(id = R.drawable.home)
+        ),
+        NavigationItem(
+            title = "Settings",
+            icon = painterResource(id = R.drawable.settings)
+
+        ),
+        NavigationItem(
+            title = "User",
+            icon = painterResource(id = R.drawable.user)
+        ),
+    )
+
+    Surface(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        val scope = rememberCoroutineScope()
+        var selectedItemIndex by rememberSaveable {
+            mutableStateOf(0)
+        }
+        ModalNavigationDrawer(
+            drawerContent = {
+                ModalDrawerSheet {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    items.forEachIndexed { index, item ->
+                        NavigationDrawerItem(
+                            label = { Text(text = item.title) },
+                            selected = index == selectedItemIndex,
+                            onClick = {
+                                //navController.navigate
+                                selectedItemIndex = index
+                                scope.launch {
+                                    drawerState.close()
+                                }
+                            },
+                            icon = {
+                                Image(
+                                    painter = item.icon,
+                                    contentDescription = item.title,
+                                    modifier = Modifier.size(35.dp)
+                                )
+                            },
+                            modifier = Modifier
+                                .padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
                     }
                 }
-            )
-        }
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(bottom = 5.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+            },
+            drawerState = drawerState
         ) {
-            Box {
-                RoundedCircularProgressIndicator(
-                    progress = waterAmount,
-                    goal = goal
-                )
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(top = 15.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "${waterAmount.value}",
-                        fontSize = 40.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "/${goal.value.checkIfAbleToFloat()}ml",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Image(
-                            painter = painterResource(id = R.drawable.waterdrop),
-                            contentDescription = "Glass of water",
-                            Modifier
-                                .size(110.dp)
-                                .padding(top = 30.dp)
+            Scaffold(
+                topBar = {
+                    TopAppBar(title = {
+                        Text(
+                            text = "Welcome ${name.value}",
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .clickable {
-                                    waterAmount.value += addWaterAmount.value
-                                    firestoreViewModel.putUserRecord(addWaterAmount.value)
-                                    firestoreViewModel.getFromUserCurrentDayAmount(
-                                        waterAmount,
-                                        year = LocalDateTime.now().year,
-                                        month = LocalDateTime.now().monthValue,
-                                        day = LocalDateTime.now().dayOfMonth,
-                                    )
-                                    addWaterAmount.value = 50
+                                    authViewModel.signOut()
+                                    navController.navigate("auth")
                                 }
                         )
-                        Text(
-                            text = "${addWaterAmount.value}ml",
-                            modifier = Modifier,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                    },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "Menu"
+                                )
+                            }
+                        })
+                },
+            ) { contentPadding ->
+                val homeScrollState = rememberScrollState()
+                Column(
+                    modifier = Modifier
+                        .padding(contentPadding)
+                        .verticalScroll(homeScrollState),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box {
+                        RoundedCircularProgressIndicator(
+                            progress = waterAmount,
+                            goal = goal
                         )
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(top = 15.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "${waterAmount.value}",
+                                fontSize = 40.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "/${goal.value.checkIfAbleToFloat()}ml",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.waterdrop),
+                                    contentDescription = "Glass of water",
+                                    Modifier
+                                        .size(110.dp)
+                                        .padding(top = 30.dp)
+                                        .clickable {
+                                            waterAmount.value += addWaterAmount.value
+                                            firestoreViewModel.putUserRecord(addWaterAmount.value)
+                                            firestoreViewModel.getFromUserCurrentDayAmount(
+                                                waterAmount,
+                                                year = LocalDateTime.now().year,
+                                                month = LocalDateTime.now().monthValue,
+                                                day = LocalDateTime.now().dayOfMonth,
+                                            )
+                                            addWaterAmount.value = 50
+                                        }
+                                )
+                                Text(
+                                    text = "${addWaterAmount.value}ml",
+                                    modifier = Modifier,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    AddWaterTile(addWaterAmount)
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                shape = RoundedCornerShape(40.dp)
+                            )
+                    ) {
+                        RecordsColumn(waterAmount, firestoreViewModel = firestoreViewModel)
+                    }
+
                 }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        shape = RoundedCornerShape(40.dp)
-                    )
-            ) {
-                RecordsLazyColumn(waterAmount, firestoreViewModel = firestoreViewModel)
             }
         }
     }
 }
-
 
 
 @Preview
