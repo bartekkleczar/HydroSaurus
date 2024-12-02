@@ -1,10 +1,11 @@
 package com.example.hydrosaurus.screens.homescreen.composables
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +22,7 @@ import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
 @Composable
-fun RecordsLazyColumn(
+fun RecordsColumn(
     waterAmount: MutableState<Int>,
     year: Int = LocalDateTime.now().year,
     month: Int = LocalDateTime.now().monthValue,
@@ -39,15 +40,18 @@ fun RecordsLazyColumn(
     }
     val context = LocalContext.current
 
-    LazyColumn(
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 10.dp)
+            .fillMaxWidth()
+            .height(if (list.value.size * 100 < 300) 300.dp else ((list.value.size)*80).dp)
+            .padding(vertical = 10.dp),
+        verticalArrangement = Arrangement.Center
     ) {
-        items(items = list.value) { record ->
+        for(record in list.value){
             Card(
                 modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 20.dp)
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = if (list.value.indexOf(record) == list.value.size-1) 0.dp else 20.dp)
                     .height(60.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.tertiary

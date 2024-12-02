@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.example.hydrosaurus.R
 
 @Composable
-fun NewAddWaterTile(waterAmount: MutableState<Int>) {
+fun AddWaterTile(waterAmount: MutableState<Int>) {
     Box{
         Row(
             Modifier.fillMaxWidth(),
