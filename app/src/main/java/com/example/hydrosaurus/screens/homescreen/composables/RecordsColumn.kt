@@ -56,9 +56,6 @@ fun RecordsColumn(
                         top = if (list.value.indexOf(record) == 0) 20.dp else 0.dp
                     )
                     .height(60.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                )
             ) {
                 SwipeableWaterElementCard(record) {
                     firestoreViewModel.deleteFromUserCertainRecord(
