@@ -43,15 +43,18 @@ fun RecordsColumn(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(430.dp)
             .padding(vertical = 10.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
         items(list.value) { record ->
             Card(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
-                    .padding(bottom = if (list.value.indexOf(record) == list.value.size - 1) 0.dp else 20.dp)
+                    .padding(
+                        bottom = if (list.value.indexOf(record) == list.value.size - 1) 0.dp else 20.dp,
+                        top = if (list.value.indexOf(record) == 0) 20.dp else 0.dp
+                    )
                     .height(60.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.tertiary
@@ -76,5 +79,5 @@ fun RecordsColumn(
                 }
             }
         }
-        }
     }
+}
