@@ -1,10 +1,13 @@
 package com.example.hydrosaurus.screens.homescreen.composables
 
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +24,7 @@ import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
 @Composable
-fun RecordsLazyColumn(
+fun RecordsColumn(
     waterAmount: MutableState<Int>,
     year: Int = LocalDateTime.now().year,
     month: Int = LocalDateTime.now().monthValue,
@@ -41,17 +44,21 @@ fun RecordsLazyColumn(
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .height(430.dp)
             .padding(vertical = 10.dp)
+            .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(20.dp)),
+        verticalArrangement = Arrangement.Top
     ) {
-        items(items = list.value) { record ->
+        items(list.value) { record ->
             Card(
                 modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 20.dp)
+                    .padding(horizontal = 20.dp)
+                    .padding(
+                        bottom = if (list.value.indexOf(record) == list.value.size - 1) 0.dp else 20.dp,
+                        top = if (list.value.indexOf(record) == 0) 20.dp else 0.dp
+                    )
                     .height(60.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                )
             ) {
                 SwipeableWaterElementCard(record) {
                     firestoreViewModel.deleteFromUserCertainRecord(
