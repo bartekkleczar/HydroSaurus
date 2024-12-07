@@ -1,13 +1,17 @@
 package com.example.hydrosaurus.screens.homescreen.composables
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -21,11 +25,18 @@ import androidx.compose.ui.unit.sp
 import com.example.hydrosaurus.R
 
 @Composable
-fun NewAddWaterTile(waterAmount: MutableState<Int>) {
-    Box{
+fun AddWaterTile(waterAmount: MutableState<Int>) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth().padding(horizontal = 5.dp)
+    ){
         Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+            Modifier
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(20.dp))
+                .height(80.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
         ){
             AmountGlass(waterAmount, 50)
             AmountGlass(waterAmount, 100)
