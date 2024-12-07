@@ -20,6 +20,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -63,7 +64,7 @@ fun HomeScreen(
     firestoreViewModel: FirestoreViewModel
 ) {
 
-    val addWaterAmount = remember { mutableStateOf(50) }
+    val addWaterAmount = remember { mutableStateOf(0) }
     val waterAmount = remember { mutableStateOf(0) }
     val name = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("name", name)
@@ -99,12 +100,12 @@ fun HomeScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF00B4DB), // Turkusowy błękit
-                        Color(0xFF0083B0), // Głębszy odcień niebieskiego
-                        Color(0xFF1D3557)  // Niebiesko-granatowy
+                        Color(0xFF00DBC1),
+                        Color(0xFF05E4D1),
+                        Color(0xFF0BA1BB)
                     )
-            )
-    )) {
+                )
+            )) {
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
@@ -113,10 +114,15 @@ fun HomeScreen(
         }
         ModalNavigationDrawer(
             drawerContent = {
-                ModalDrawerSheet {
+                ModalDrawerSheet(
+                    drawerContainerColor = Color(0x5F000000)
+                ) {
                     Spacer(modifier = Modifier.height(16.dp))
                     items.forEachIndexed { index, item ->
                         NavigationDrawerItem(
+                            colors = NavigationDrawerItemDefaults.colors(
+                                selectedContainerColor = Color(0x9F000000)
+                            ),
                             label = { Text(text = item.title) },
                             selected = index == selectedItemIndex,
                             onClick = {
@@ -152,6 +158,7 @@ fun HomeScreen(
                         title = {
                             Text(
                                 text = "Welcome ${name.value}",
+                                color = Color.Black,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
@@ -168,7 +175,8 @@ fun HomeScreen(
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Menu,
-                                    contentDescription = "Menu"
+                                    contentDescription = "Menu",
+                                    tint = Color.Black
                                 )
                             }
                         },
@@ -200,7 +208,7 @@ fun HomeScreen(
                             month = LocalDateTime.now().monthValue,
                             day = LocalDateTime.now().dayOfMonth,
                         )
-                        addWaterAmount.value = 50
+                        addWaterAmount.value = 0
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     AddWaterTile(addWaterAmount)

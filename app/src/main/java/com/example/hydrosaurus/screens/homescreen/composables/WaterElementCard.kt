@@ -56,10 +56,15 @@ fun WaterElementCard(record: Map<String, Any>, modifier: Modifier) {
                     contentDescription = "Glass of water",
                     Modifier.size(30.dp)
                 )
-                Text(text = "${record["amount"]}")
+                Text(
+                    text = "${record["amount"]}",
+                    color = Color.Black
+                    )
             }
             Row {
-                Text(text = "Today, ${record["hour"]}:${record["minute"].minutesCorrection()}")
+                Text(
+                    text = "Today, ${record["hour"]}:${record["minute"].minutesCorrection()}",
+                    color = Color.Black)
             }
         }
     }
