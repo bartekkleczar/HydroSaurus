@@ -30,10 +30,11 @@ fun RoundedCircularProgressIndicator(
     progress: MutableState<Int>,
     goal: MutableState<String>,
     strokeWidth: Float = 70f,
-    waterAmount: MutableState<Int>
+    waterAmount: MutableState<Int>,
+    size: Int
 ) {
     Box(modifier = Modifier
-        .size(200.dp),
+        .size(size.dp),
         contentAlignment = Alignment.Center
     ){
         Canvas(
