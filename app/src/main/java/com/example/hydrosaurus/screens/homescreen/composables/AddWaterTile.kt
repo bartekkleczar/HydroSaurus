@@ -28,7 +28,7 @@ import com.example.hydrosaurus.R
 fun AddWaterTile(waterAmount: MutableState<Int>) {
     Box(
         modifier = Modifier
-            .fillMaxWidth().padding(horizontal = 5.dp)
+            .fillMaxWidth().padding(horizontal = 10.dp)
     ){
         Row(
             Modifier

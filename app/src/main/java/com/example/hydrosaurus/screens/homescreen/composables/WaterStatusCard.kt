@@ -40,7 +40,8 @@ fun WaterStatusCard(
     goal: MutableState<String>,
     onClick: () -> Unit
 ) {
-    Row{
+    val elementsSize = 190
+    Row(Modifier.padding(horizontal = 5.dp)){
         Box(
             modifier = Modifier
                 .padding(horizontal = 5.dp)
@@ -50,12 +51,13 @@ fun WaterStatusCard(
                 progress = waterAmount,
                 goal = goal,
                 waterAmount = waterAmount,
+                size = elementsSize
             )
         }
         Box(
             modifier = Modifier
                 .padding(horizontal = 5.dp)
-                .size(200.dp)
+                .size(elementsSize.dp)
                 .background(color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape)
         ) {
             Column(
