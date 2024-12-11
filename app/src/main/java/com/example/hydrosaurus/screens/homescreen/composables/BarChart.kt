@@ -64,7 +64,7 @@ fun BarChart(
             .padding(horizontal = 10.dp)
             .padding(bottom = 10.dp)
             .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = Color(0x2F000000),
                 shape = RoundedCornerShape(20.dp)
             )
             .then(
