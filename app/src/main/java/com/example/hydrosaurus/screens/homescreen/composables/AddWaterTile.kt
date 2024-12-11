@@ -33,7 +33,7 @@ fun AddWaterTile(waterAmount: MutableState<Int>) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(20.dp))
+                .background(color = Color(0x2F000000), shape = RoundedCornerShape(20.dp))
                 .height(80.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically

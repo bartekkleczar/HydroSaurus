@@ -45,7 +45,7 @@ fun WaterStatusCard(
         Box(
             modifier = Modifier
                 .padding(horizontal = 5.dp)
-                .background(color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape)
+                .background(color = Color(0x2F000000), shape = CircleShape)
         ) {
             RoundedCircularProgressIndicator(
                 progress = waterAmount,
@@ -58,7 +58,7 @@ fun WaterStatusCard(
             modifier = Modifier
                 .padding(horizontal = 5.dp)
                 .size(elementsSize.dp)
-                .background(color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape)
+                .background(color = Color(0x2F000000), shape = CircleShape)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
