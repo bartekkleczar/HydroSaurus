@@ -34,71 +34,36 @@ import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
 @Composable
-fun BarChart(
-    modifier: Modifier = Modifier,
-    maxHeight: Dp = 200.dp,
-    //waterAmount: MutableState<Int>,
-    firestoreViewModel: FirestoreViewModel,
-    year: Int = LocalDateTime.now().year,
-    month: Int = LocalDateTime.now().monthValue,
-    day: Int = LocalDateTime.now().dayOfMonth,
-){
+fun BarChart(firestoreViewModel: FirestoreViewModel, modifier: Modifier = Modifier) {
+    val weeklySums = remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
 
-    val list = remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     LaunchedEffect(Unit) {
-        while (true) {
-            //change function to one with accuracy to weeks
-            firestoreViewModel.getFromUserListOfRecordsAccDays(year, month, day) { fetchedList ->
-                list.value = fetchedList
-            }
-            delay(100)
+        firestoreViewModel.getSumOfAmountsForLastWeek { sums ->
+            weeklySums.value = sums
         }
     }
-
-    val borderColor = MaterialTheme.colorScheme.primary
-    val density = LocalDensity.current
-    val strokeWidth = with(density) { 1.dp.toPx() }
-
+    val week = remember { mutableStateOf<MutableMap<String, Int>>(mutableMapOf()) }
     Row(
         modifier = modifier
             .padding(horizontal = 10.dp)
-            .padding(bottom = 10.dp)
+            .fillMaxWidth()
             .background(
                 color = Color(0x2F000000),
                 shape = RoundedCornerShape(20.dp)
-            )
-            .then(
-                Modifier
-                    .fillMaxWidth()
-                    .height(maxHeight)
-                    .padding(10.dp)
-                    .drawBehind {
-                        // X-Axis
-                        drawLine(
-                            color = borderColor,
-                            start = Offset(0f, size.height),
-                            end = Offset(size.width, size.height),
-                            strokeWidth = strokeWidth
-                        )
-                        // Y-Axis
-                        drawLine(
-                            color = borderColor,
-                            start = Offset(0f, 0f),
-                            end = Offset(0f, size.height),
-                            strokeWidth = strokeWidth
-                        )
-                    }
             ),
-        verticalAlignment = Alignment.Bottom
-    ) {
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceAround,
 
-        list.value.forEach { record ->
+    ) {
+        weeklySums.value.forEach { pair ->
+            week.value[pair.first] = pair.second
+            val day = LocalDateTime.now()
+            val dayShortcut = "${day.dayOfWeek.toString()[0]}${day.dayOfWeek.toString()[1]}${day.dayOfWeek.toString()[2]}"
             Bar(
-                value = record["amount"].toString().toFloat(),
-                color = MaterialTheme.colorScheme.secondary,
-                maxHeight = maxHeight
+                value = pair.second.toFloat(),
+                label = if(pair.first == dayShortcut) "TODAY" else pair.first,
+                color = if(pair.first == dayShortcut) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondary
             )
-            Spacer(modifier = Modifier.width(10.dp))
         }
     }
 }
@@ -106,21 +71,22 @@ fun BarChart(
 @Composable
 fun Bar(
     value: Float,
-    color: Color,
-    maxHeight: Dp
+    label: String,
+    color: Color
 ) {
+    val barHeight = remember { mutableStateOf(value/10) }
 
-    val itemHeight = remember(value) { value / 10 }
-    Column(horizontalAlignment = Alignment.CenterHorizontally){
-        Text(text = value.toString())
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(vertical = 10.dp)
+    ) {
+        Text(text = value.toInt().toString(), color = Color.Black)
         Spacer(
             modifier = Modifier
-                .padding(horizontal = 5.dp)
-                .height(itemHeight.dp)
-                .width(10.dp)
-                .background(color)
+                .height(barHeight.value.dp)
+                .width(20.dp)
+                .background(color, RoundedCornerShape(6.dp))
         )
+        Text(text = label, color = Color.Black)
     }
-
 }
-

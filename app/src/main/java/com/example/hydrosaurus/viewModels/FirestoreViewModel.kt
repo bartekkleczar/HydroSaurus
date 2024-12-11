@@ -10,7 +10,11 @@ import com.example.hydrosaurus.minutesCorrection
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 open class FirestoreViewModel() : ViewModel() {
 
@@ -127,6 +131,39 @@ open class FirestoreViewModel() : ViewModel() {
                 }
         } else {
             onResult(emptyList())
+        }
+    }
+
+
+    fun getSumOfAmountsForLastWeek(onResult: (List<Pair<String, Int>>) -> Unit) {
+        val today = LocalDate.now()
+        val sums = mutableListOf<Pair<String, Int>>()
+        val pendingDays = mutableListOf<LocalDate>()
+
+        for (i in 0..6) {
+            val day = today.minusDays(i.toLong())
+            pendingDays.add(day)
+        }
+
+        val resultsCount = arrayOf(0)
+        for (day in pendingDays) {
+            getFromUserListOfRecordsAccDays(
+                year = day.year,
+                month = day.monthValue,
+                day = day.dayOfMonth
+            ) { records ->
+                val sumForDay = records.sumOf { it["amount"] as Int }
+                sums.add("${day.dayOfWeek.toString()[0]}${day.dayOfWeek.toString()[1]}${day.dayOfWeek.toString()[2]}" to sumForDay)
+
+                resultsCount[0]++
+                if (resultsCount[0] == pendingDays.size) {
+                    val orderedSums = sums.sortedBy {
+                        val order = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+                        order.indexOf(it.first)
+                    }
+                    onResult(orderedSums)
+                }
+            }
         }
     }
 
