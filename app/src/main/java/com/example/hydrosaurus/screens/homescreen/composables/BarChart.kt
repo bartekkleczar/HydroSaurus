@@ -62,7 +62,7 @@ fun BarChart(firestoreViewModel: FirestoreViewModel, modifier: Modifier = Modifi
             Bar(
                 value = pair.second.toFloat(),
                 label = if(pair.first == dayShortcut) "TODAY" else pair.first,
-                color = if(pair.first == dayShortcut) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondary
+                color = if(pair.first == dayShortcut) Color(0xFF0072FF) else Color(0xFF00C6FF)
             )
         }
     }
