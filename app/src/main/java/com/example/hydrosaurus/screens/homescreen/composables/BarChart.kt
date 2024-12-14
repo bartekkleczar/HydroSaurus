@@ -38,8 +38,11 @@ fun BarChart(firestoreViewModel: FirestoreViewModel, modifier: Modifier = Modifi
     val weeklySums = remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
 
     LaunchedEffect(Unit) {
-        firestoreViewModel.getSumOfAmountsForLastWeek { sums ->
-            weeklySums.value = sums
+        while(true){
+            firestoreViewModel.getSumOfAmountsForLastWeek { sums ->
+                weeklySums.value = sums
+            }
+            delay(100)
         }
     }
     val week = remember { mutableStateOf<MutableMap<String, Int>>(mutableMapOf()) }
