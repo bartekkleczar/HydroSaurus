@@ -47,6 +47,7 @@ open class FirestoreViewModel() : ViewModel() {
         if (uid != null) {
             val record = hashMapOf(
                 "amount" to amount,
+                "isSum" to false,
                 "dayOfWeek" to time.dayOfWeek,
                 "month" to time.month,
                 "hour" to time.hour,
@@ -59,7 +60,9 @@ open class FirestoreViewModel() : ViewModel() {
             )
 
             db.collection(uid).document("${time.year}-${time.monthValue}-${time.dayOfMonth}T${time.hour}:${time.minute}:${time.second}").set(record)
-                .addOnSuccessListener { /*Log.d("Firestore", "$record")*/ }
+                .addOnSuccessListener {
+                //Log.d("Firestore", "$record")
+                }
                 .addOnFailureListener { e -> Log.e("Firestore", "Error saving record data", e) }
 
             updateUserDayRecord(year = time.year, monthValue = time.monthValue, dayOfMonth = time.dayOfMonth, addAmount = amount)
@@ -71,12 +74,47 @@ open class FirestoreViewModel() : ViewModel() {
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
         var amount = 0
+        val time = LocalDateTime.now()
         if(uid != null) {
             db.collection(uid).document(day).get().addOnSuccessListener {
-                    d -> amount = d.data?.get("amount").toString().toInt()
+                    d ->
+                if(d.data?.get("amount") != null) amount = d.data?.get("amount").toString().toInt()
                 //Log.d("Firestore", amount.toString())
-                db.collection(uid).document(day).update("amount", amount+addAmount)
+                setUserDayRecord() {
+                    db.collection(uid).document(day).update("amount", amount + addAmount)
+                }
             }
+        }
+    }
+
+    private fun setUserDayRecord(onSuccess: () -> Unit){
+        val time = LocalDateTime.now()
+        val day = "${time.year}-${time.monthValue}-${time.dayOfMonth}D"
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+        var amount = 0
+        if (uid != null) {
+            val record = hashMapOf(
+                "amount" to 0,
+                "isSum" to true,
+                "dayOfWeek" to time.dayOfWeek,
+                "month" to time.month,
+                "hour" to time.hour,
+                "year" to time.year,
+                "dayOfMonth" to time.dayOfMonth,
+                "dayOfYear" to time.dayOfYear,
+                "monthValue" to time.monthValue,
+                "minute" to time.minute,
+                "second" to time.second,
+            )
+
+                db.collection(uid).document(day).set(record)
+                    .addOnSuccessListener {
+                        //Log.d("Firestore", "$record")
+                        onSuccess()
+                    }
+                    .addOnFailureListener { e -> Log.e("Firestore", "Error saving record data", e) }
         }
     }
 
@@ -118,7 +156,12 @@ open class FirestoreViewModel() : ViewModel() {
         val db = FirebaseFirestore.getInstance()
         if (uid != null) {
             var newAmount = 0
-            db.collection(uid).whereEqualTo("year", year).whereEqualTo("monthValue", month).whereEqualTo("dayOfMonth", day).get().addOnSuccessListener {
+            db.collection(uid)
+                .whereEqualTo("year", year)
+                .whereEqualTo("monthValue", month)
+                .whereEqualTo("dayOfMonth", day)
+                .whereEqualTo("isSum", false)
+                .get().addOnSuccessListener {
                 docs ->
                 //Log.d("FirestoreCurrentDayAmount", "$year, $month, $day")
                 for(doc in docs){
@@ -145,6 +188,7 @@ open class FirestoreViewModel() : ViewModel() {
                 .whereEqualTo("year", year)
                 .whereEqualTo("monthValue", month)
                 .whereEqualTo("dayOfMonth", day)
+                .whereEqualTo("isSum", false)
                 .get()
                 .addOnSuccessListener { docs ->
                     for (doc in docs) {
