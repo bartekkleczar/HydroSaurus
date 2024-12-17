@@ -21,3 +21,12 @@ fun Any?.minutesCorrection(): String{
     }
     else this.toString()
 }
+
+fun String.safeToFloat(): Float{
+    return try {
+        (this.toFloat())
+    } catch (e: Exception){
+        0f
+    }
+}
+
