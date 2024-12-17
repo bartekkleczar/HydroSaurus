@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import com.example.hydrosaurus.minutesCorrection
 import com.google.firebase.FirebaseApp
@@ -12,9 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Locale
+import java.time.YearMonth
 
 open class FirestoreViewModel() : ViewModel() {
 
@@ -29,8 +26,8 @@ open class FirestoreViewModel() : ViewModel() {
         if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener { document ->
                 if (document != null) {
-                    Log.d("Firestore", "uid: $uid | email: ${auth.currentUser!!.email}")
-                    Log.d("Firestore", "DocumentSnapshot data: ${document.data}")
+                    //Log.d("Firestore", "uid: $uid | email: ${auth.currentUser!!.email}")
+                    //Log.d("Firestore", "DocumentSnapshot data: ${document.data}")
                     state.value = document.data?.get(property).toString()
                 } else {
                     Log.d("Firestore", "No such document")
@@ -62,8 +59,51 @@ open class FirestoreViewModel() : ViewModel() {
             )
 
             db.collection(uid).document("${time.year}-${time.monthValue}-${time.dayOfMonth}T${time.hour}:${time.minute}:${time.second}").set(record)
-                .addOnSuccessListener { Log.d("Firestore", "$record") }
+                .addOnSuccessListener { /*Log.d("Firestore", "$record")*/ }
                 .addOnFailureListener { e -> Log.e("Firestore", "Error saving record data", e) }
+
+            updateUserDayRecord(year = time.year, monthValue = time.monthValue, dayOfMonth = time.dayOfMonth, addAmount = amount)
+        }
+    }
+    private fun updateUserDayRecord(year: Int, monthValue: Int, dayOfMonth: Int, addAmount: Int){
+        val day = "${year}-${monthValue}-${dayOfMonth}D"
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+        var amount = 0
+        if(uid != null) {
+            db.collection(uid).document(day).get().addOnSuccessListener {
+                    d -> amount = d.data?.get("amount").toString().toInt()
+                //Log.d("Firestore", amount.toString())
+                db.collection(uid).document(day).update("amount", amount+addAmount)
+            }
+        }
+    }
+
+    fun deleteFromUserCertainRecord(
+        year: Int = 0,
+        month: Int = 0,
+        day: Int = 0,
+        hour: Int = 0,
+        minute: Int = 0,
+        sec: Int = 0,
+        context: Context
+    ) {
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+        if (uid != null) {
+            var amount = 0
+            val dayStr = "${year}-${month}-${day}T${hour}:${minute}:${sec}"
+            db.collection(uid).document(dayStr).get().addOnSuccessListener {
+                    d -> amount = d.data?.get("amount").toString().toInt()
+                db.collection(uid).document("$year-$month-${day}T$hour:$minute:$sec").delete().addOnSuccessListener{
+                        _ ->
+                    updateUserDayRecord(year = year, monthValue = month, dayOfMonth = day, addAmount = -amount)
+                    Toast.makeText(context, "Record $hour:${minute.minutesCorrection()}:$sec deleted successfully", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         }
     }
 
@@ -80,10 +120,10 @@ open class FirestoreViewModel() : ViewModel() {
             var newAmount = 0
             db.collection(uid).whereEqualTo("year", year).whereEqualTo("monthValue", month).whereEqualTo("dayOfMonth", day).get().addOnSuccessListener {
                 docs ->
-                Log.d("FirestoreCurrentDayAmount", "$year, $month, $day")
+                //Log.d("FirestoreCurrentDayAmount", "$year, $month, $day")
                 for(doc in docs){
                     newAmount += doc.data["amount"].toString().toInt()
-                    Log.d("FirestoreCurrentDayAmount", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
+                    //Log.d("FirestoreCurrentDayAmount", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
                 }
                 stateAmount.value = newAmount
             }
@@ -134,7 +174,6 @@ open class FirestoreViewModel() : ViewModel() {
         }
     }
 
-
     fun getSumOfAmountsForLastWeek(onResult: (List<Pair<String, Int>>) -> Unit) {
         val today = LocalDate.now()
         val sums = mutableListOf<Pair<String, Int>>()
@@ -163,26 +202,6 @@ open class FirestoreViewModel() : ViewModel() {
                     }
                     onResult(orderedSums)
                 }
-            }
-        }
-    }
-
-    fun deleteFromUserCertainRecord(
-        year: Int = 0,
-        month: Int = 0,
-        day: Int = 0,
-        hour: Int = 0,
-        minute: Int = 0,
-        sec: Int = 0,
-        context: Context
-    ) {
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
-        if (uid != null) {
-            db.collection(uid).document("$year-$month-${day}T$hour:$minute:$sec").delete().addOnSuccessListener{
-                    _ ->
-                Toast.makeText(context, "Record $hour:${minute.minutesCorrection()}:$sec deleted successfully", Toast.LENGTH_SHORT).show()
             }
         }
     }
