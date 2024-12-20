@@ -11,7 +11,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
 
 open class FirestoreViewModel() : ViewModel() {
 
@@ -30,11 +29,11 @@ open class FirestoreViewModel() : ViewModel() {
                     //Log.d("Firestore", "DocumentSnapshot data: ${document.data}")
                     state.value = document.data?.get(property).toString()
                 } else {
-                    Log.d("Firestore", "No such document")
+                    Log.e("Firestore", "No such document")
                 }
             }
                 .addOnFailureListener { exception ->
-                    Log.d("Firestore", "get failed with ", exception)
+                    Log.e("Firestore", "get failed with ", exception)
                 }
         }
     }
@@ -59,26 +58,33 @@ open class FirestoreViewModel() : ViewModel() {
                 "second" to time.second,
             )
 
-            db.collection(uid).document("${time.year}-${time.monthValue}-${time.dayOfMonth}T${time.hour}:${time.minute}:${time.second}").set(record)
+            db.collection(uid)
+                .document("${time.year}-${time.monthValue}-${time.dayOfMonth}T${time.hour}:${time.minute}:${time.second}")
+                .set(record)
                 .addOnSuccessListener {
-                //Log.d("Firestore", "$record")
+                    //Log.d("Firestore", "$record")
                 }
                 .addOnFailureListener { e -> Log.e("Firestore", "Error saving record data", e) }
 
-            updateUserDayRecord(year = time.year, monthValue = time.monthValue, dayOfMonth = time.dayOfMonth, addAmount = amount)
+            updateUserDayRecord(
+                year = time.year,
+                monthValue = time.monthValue,
+                dayOfMonth = time.dayOfMonth,
+                addAmount = amount
+            )
         }
     }
-    private fun updateUserDayRecord(year: Int, monthValue: Int, dayOfMonth: Int, addAmount: Int){
+
+    private fun updateUserDayRecord(year: Int, monthValue: Int, dayOfMonth: Int, addAmount: Int) {
         val day = "${year}-${monthValue}-${dayOfMonth}D"
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
         var amount = 0
         val time = LocalDateTime.now()
-        if(uid != null) {
-            db.collection(uid).document(day).get().addOnSuccessListener {
-                    d ->
-                if(d.data?.get("amount") != null) amount = d.data?.get("amount").toString().toInt()
+        if (uid != null) {
+            db.collection(uid).document(day).get().addOnSuccessListener { d ->
+                if (d.data?.get("amount") != null) amount = d.data?.get("amount").toString().toInt()
                 //Log.d("Firestore", amount.toString())
                 setUserDayRecord() {
                     db.collection(uid).document(day).update("amount", amount + addAmount)
@@ -87,7 +93,7 @@ open class FirestoreViewModel() : ViewModel() {
         }
     }
 
-    private fun setUserDayRecord(onSuccess: () -> Unit){
+    private fun setUserDayRecord(onSuccess: () -> Unit) {
         val time = LocalDateTime.now()
         val day = "${time.year}-${time.monthValue}-${time.dayOfMonth}D"
         val auth = FirebaseAuth.getInstance()
@@ -109,12 +115,12 @@ open class FirestoreViewModel() : ViewModel() {
                 "second" to time.second,
             )
 
-                db.collection(uid).document(day).set(record)
-                    .addOnSuccessListener {
-                        //Log.d("Firestore", "$record")
-                        onSuccess()
-                    }
-                    .addOnFailureListener { e -> Log.e("Firestore", "Error saving record data", e) }
+            db.collection(uid).document(day).set(record)
+                .addOnSuccessListener {
+                    //Log.d("Firestore", "$record")
+                    onSuccess()
+                }
+                .addOnFailureListener { e -> Log.e("Firestore", "Error saving record data", e) }
         }
     }
 
@@ -133,13 +139,22 @@ open class FirestoreViewModel() : ViewModel() {
         if (uid != null) {
             var amount = 0
             val dayStr = "${year}-${month}-${day}T${hour}:${minute}:${sec}"
-            db.collection(uid).document(dayStr).get().addOnSuccessListener {
-                    d -> amount = d.data?.get("amount").toString().toInt()
-                db.collection(uid).document("$year-$month-${day}T$hour:$minute:$sec").delete().addOnSuccessListener{
-                        _ ->
-                    updateUserDayRecord(year = year, monthValue = month, dayOfMonth = day, addAmount = -amount)
-                    Toast.makeText(context, "Record $hour:${minute.minutesCorrection()}:$sec deleted successfully", Toast.LENGTH_SHORT).show()
-                }
+            db.collection(uid).document(dayStr).get().addOnSuccessListener { d ->
+                amount = d.data?.get("amount").toString().toInt()
+                db.collection(uid).document("$year-$month-${day}T$hour:$minute:$sec").delete()
+                    .addOnSuccessListener { _ ->
+                        updateUserDayRecord(
+                            year = year,
+                            monthValue = month,
+                            dayOfMonth = day,
+                            addAmount = -amount
+                        )
+                        Toast.makeText(
+                            context,
+                            "Record $hour:${minute.minutesCorrection()}:$sec deleted successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
             }
 
         }
@@ -161,23 +176,22 @@ open class FirestoreViewModel() : ViewModel() {
                 .whereEqualTo("monthValue", month)
                 .whereEqualTo("dayOfMonth", day)
                 .whereEqualTo("isSum", false)
-                .get().addOnSuccessListener {
-                docs ->
-                //Log.d("FirestoreCurrentDayAmount", "$year, $month, $day")
-                for(doc in docs){
-                    newAmount += doc.data["amount"].toString().toInt()
-                    //Log.d("FirestoreCurrentDayAmount", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
+                .get().addOnSuccessListener { docs ->
+                    //Log.d("FirestoreCurrentDayAmount", "$year, $month, $day")
+                    for (doc in docs) {
+                        newAmount += doc.data["amount"].toString().toInt()
+                        //Log.d("FirestoreCurrentDayAmount", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
+                    }
+                    stateAmount.value = newAmount
                 }
-                stateAmount.value = newAmount
-            }
         }
     }
 
     fun getFromUserListOfRecordsAccDays(
-    year: Int = 0,
-    month: Int = 0,
-    day: Int = 0,
-    onResult: (List<Map<String, Any>>) -> Unit
+        year: Int = 0,
+        month: Int = 0,
+        day: Int = 0,
+        onResult: (List<Map<String, Any>>) -> Unit
     ) {
         val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
@@ -247,6 +261,39 @@ open class FirestoreViewModel() : ViewModel() {
                     onResult(orderedSums)
                 }
             }
+        }
+    }
+
+    fun getFromUserListOfRecordsAccMonths(
+        year: Int,
+        monthValue: Int,
+        onResult: (List<Map<String, Any>>) -> Unit
+    ) {
+
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+        val list = mutableListOf<Map<String, Any>>()
+
+        if (uid != null) {
+            db.collection(uid)
+                .whereEqualTo("year", year)
+                .whereEqualTo("monthValue", monthValue)
+                .whereEqualTo("isSum", true)
+                .get()
+                .addOnSuccessListener { docs ->
+                    for (doc in docs) {
+                        list.add(doc.data)
+                    }
+                    val sortedList = list.sortedBy {
+                        it["dayOfMonth"].toString().toInt()
+                    }
+
+                    /*for(el in sortedList){
+                        Log.d("Firebase", "${el["dayOfMonth"]} -- ${el["amount"]}")
+                    }*/
+                    onResult(sortedList)
+                }
         }
     }
 }
