@@ -218,7 +218,10 @@ fun HomeScreen(
                     ) {
                         RecordsColumn(waterAmount, firestoreViewModel = firestoreViewModel)
                     }
-
+                    Spacer(modifier = Modifier.height(20.dp))
+                    BarChart(firestoreViewModel = firestoreViewModel)
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MonthGrid(firestoreViewModel = firestoreViewModel)
                 }
             }
         }
