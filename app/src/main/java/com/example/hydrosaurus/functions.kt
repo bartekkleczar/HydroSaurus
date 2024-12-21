@@ -55,3 +55,16 @@ fun List<Map<String, Any>>.checkDay(dayOfMonth: Int, emptyDay: () -> Map<String,
     }
     return emptyDay()
 }
+
+fun weekDayToInt(dayName: String): Int{
+    return when(dayName){
+        "MONDAY" -> 1
+        "TUESDAY" -> 2
+        "WEDNESDAY" -> 3
+        "THURSDAY" -> 4
+        "FRIDAY" -> 5
+        "SATURDAY" -> 6
+        "SUNDAY" -> 7
+        else -> 1
+    }
+}
