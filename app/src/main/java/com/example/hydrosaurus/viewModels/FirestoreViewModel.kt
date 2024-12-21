@@ -305,7 +305,6 @@ open class FirestoreViewModel() : ViewModel() {
                     }
 
                     val firstDayOfMonth = LocalDate.of(year, monthValue, 1).toRecordMap()
-                    Log.d("MonthGrid", firstDayOfMonth["dayOfWeek"].toString())
                     if (firstDayOfMonth["dayOfWeek"] != "MONDAY") {
                         val firstDayNumber = weekDayToInt(firstDayOfMonth["dayOfWeek"].toString())
                         for (i in 1 until firstDayNumber) {

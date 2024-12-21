@@ -1,5 +1,6 @@
 package com.example.hydrosaurus
 
+import androidx.compose.ui.graphics.Color
 import java.time.LocalDate
 
 fun String.containsChar(x: Char): Boolean{
@@ -67,4 +68,16 @@ fun weekDayToInt(dayName: String): Int{
         "SUNDAY" -> 7
         else -> 1
     }
+}
+
+
+fun getDarkerBlue(amount: Int, dayOfMonth: String): Color {
+    val baseColor = Color(0xFFBEFAFF)
+    if(dayOfMonth == "") return Color.Transparent
+    return Color(
+        red = baseColor.red - amount.toFloat()/300f,
+        green = baseColor.green - amount.toFloat()/2000f,
+        blue = baseColor.blue,
+        alpha = baseColor.alpha,
+    )
 }
