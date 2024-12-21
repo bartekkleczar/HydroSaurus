@@ -55,7 +55,7 @@ fun AmountGlass(waterAmount: MutableState<Int>, addAmount: Int){
             painter = painterResource(id = R.drawable.wateraddicon),
             contentDescription = "Add $addAmount",
             modifier = Modifier
-                .size(60.dp)
+                .size(55.dp)
                 .clickable {
                     waterAmount.value += addAmount
                 }
