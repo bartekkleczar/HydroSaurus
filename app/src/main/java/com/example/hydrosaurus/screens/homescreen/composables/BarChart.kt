@@ -53,7 +53,7 @@ fun BarChart(firestoreViewModel: FirestoreViewModel, modifier: Modifier = Modifi
         modifier = modifier
             .padding(horizontal = 10.dp)
             .fillMaxWidth()
-            .height((200).dp)
+            .height(200.dp)
             .background(
                 color = Color(0x2F000000),
                 shape = RoundedCornerShape(20.dp)
@@ -98,7 +98,10 @@ fun Bar(
         Text(text = value.toInt().toString(), color = Color.Black)
         Spacer(
             modifier = Modifier
-                .height(((value / maxHeight.value.safeToFloat())/10).dp)
+                .height(
+                    if(((value / maxHeight.value.safeToFloat())/10) > 100) {
+                    110.dp
+                }else ((value / maxHeight.value.safeToFloat())/10).dp)
                 .width(20.dp)
                 .background(color, RoundedCornerShape(6.dp))
         )
