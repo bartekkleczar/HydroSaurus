@@ -17,6 +17,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
@@ -47,7 +48,7 @@ fun RecordsColumn(
             .fillMaxWidth()
             .height(430.dp)
             .padding(vertical = 10.dp)
-            .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(20.dp)),
+            .background(color = Color(0x2F000000), shape = RoundedCornerShape(20.dp)),
         verticalArrangement = Arrangement.Top
     ) {
         items(list.value) { record ->
