@@ -5,7 +5,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
+import com.example.hydrosaurus.checkDay
 import com.example.hydrosaurus.minutesCorrection
+import com.example.hydrosaurus.toRecordMap
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -292,7 +294,15 @@ open class FirestoreViewModel() : ViewModel() {
                     /*for(el in sortedList){
                         Log.d("Firebase", "${el["dayOfMonth"]} -- ${el["amount"]}")
                     }*/
-                    onResult(sortedList)
+                    val monthRecords = mutableListOf<Map<String, Any>>()
+                    for(i in 1..31){
+                        if(sortedList.isNotEmpty()){
+                            monthRecords.add(sortedList.checkDay(i){
+                                LocalDate.of(year, monthValue, i).toRecordMap()
+                            })
+                        }
+                    }
+                    onResult(monthRecords)
                 }
         }
     }
