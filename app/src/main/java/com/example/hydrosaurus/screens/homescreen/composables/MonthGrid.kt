@@ -18,34 +18,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.hydrosaurus.checkDay
+import com.example.hydrosaurus.toRecordMap
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 
 @Composable
-fun MonthGrid(firestoreViewModel: FirestoreViewModel){
-    val month = remember{mutableStateOf<List<Map<String, Any>>>(emptyList())}
+fun MonthGrid(firestoreViewModel: FirestoreViewModel, year: Int = LocalDate.now().year, month: Int = LocalDate.now().monthValue){
+    val records = remember{mutableStateOf<List<Map<String, Any>>>(emptyList())}
+    val monthRecords = remember{ mutableStateOf<MutableList<Map<String, Any>>>(mutableListOf()) }
     LaunchedEffect(Unit){
         while(true){
             firestoreViewModel.getFromUserListOfRecordsAccMonths(
-                LocalDate.now().year,
-                LocalDate.now().monthValue
-            ) { mon ->
-                month.value = mon
+                year,
+                month
+            ) { eachMonth ->
+                records.value = eachMonth
                 //Log.d("MonthGrid", "${month.value}")
             }
-            delay(100)
+            /*monthRecords.value.clear()
+            for(i in 1..31){
+                if(records.value.isNotEmpty()){
+                    monthRecords.value.add(records.value.checkDay(i){
+                        LocalDate.of(year, month, i).toRecordMap()
+                    })
+                }
+            }*/
+            delay(1000)
         }
     }
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 60.dp),
         modifier = Modifier.height(400.dp)
     ){
-        var i = 0
-        items(month.value){ day->
-            i += 1
-            //Log.d("MonthGrid", "${day["dayOfMonth"]} -- $i")
+        items(records.value){ day ->
+
             VerticalGridItem(day = day)
         }
     }
