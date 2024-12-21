@@ -70,7 +70,7 @@ fun WaterStatusCard(
                     painter = painterResource(id = R.drawable.waterdrop),
                     contentDescription = "Glass of water",
                     Modifier
-                        .size(100.dp)
+                        .size(120.dp)
                         .padding(top = 30.dp)
                         .graphicsLayer(scaleX = scale.value, scaleY = scale.value)
                         .clickable {
