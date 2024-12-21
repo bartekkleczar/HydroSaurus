@@ -75,6 +75,7 @@ fun MonthGrid(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp)
+                    .padding(horizontal = 5.dp)
             ) {
                 for (i in listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")) {
                     Row(
