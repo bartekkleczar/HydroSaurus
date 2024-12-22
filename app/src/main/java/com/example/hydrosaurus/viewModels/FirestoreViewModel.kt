@@ -12,19 +12,27 @@ import com.example.hydrosaurus.weekDayToInt
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 open class FirestoreViewModel() : ViewModel() {
+
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
+    private val uid = auth.currentUser?.uid
+
+    private val _currentWaterAmount = MutableStateFlow(0)
+    val currentWaterAmount: StateFlow<Int> = _currentWaterAmount.asStateFlow()
 
     fun setup(context: Context) {
         FirebaseApp.initializeApp(context)
     }
 
     fun getFromUserDocumentProperty(property: String, state: MutableState<String>) {
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
+
         if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener { document ->
                 if (document != null) {
@@ -42,9 +50,7 @@ open class FirestoreViewModel() : ViewModel() {
     }
 
     fun putUserRecord(amount: Int) {
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
+
         val time = LocalDateTime.now()
         if (uid != null) {
             val record = hashMapOf(
@@ -80,9 +86,7 @@ open class FirestoreViewModel() : ViewModel() {
 
     private fun updateUserDayRecord(year: Int, monthValue: Int, dayOfMonth: Int, addAmount: Int) {
         val day = "${year}-${monthValue}-${dayOfMonth}D"
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
+
         var amount = 0
         val time = LocalDateTime.now()
         if (uid != null) {
@@ -99,9 +103,7 @@ open class FirestoreViewModel() : ViewModel() {
     private fun setUserDayRecord(onSuccess: () -> Unit) {
         val time = LocalDateTime.now()
         val day = "${time.year}-${time.monthValue}-${time.dayOfMonth}D"
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
+
         var amount = 0
         if (uid != null) {
             val record = hashMapOf(
@@ -136,9 +138,7 @@ open class FirestoreViewModel() : ViewModel() {
         sec: Int = 0,
         context: Context
     ) {
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
+
         if (uid != null) {
             var amount = 0
             val dayStr = "${year}-${month}-${day}T${hour}:${minute}:${sec}"
@@ -163,29 +163,33 @@ open class FirestoreViewModel() : ViewModel() {
         }
     }
 
-    fun getFromUserCurrentDayAmount(
-        stateAmount: MutableState<Int>,
-        year: Int = 0,
-        month: Int = 0,
-        day: Int = 0
+    fun listenForUserCurrentDayAmount(
+        year: Int,
+        month: Int,
+        day: Int
     ) {
-        val auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
         if (uid != null) {
-            var newAmount = 0
             db.collection(uid)
                 .whereEqualTo("year", year)
                 .whereEqualTo("monthValue", month)
                 .whereEqualTo("dayOfMonth", day)
                 .whereEqualTo("isSum", false)
-                .get().addOnSuccessListener { docs ->
-                    //Log.d("FirestoreCurrentDayAmount", "$year, $month, $day")
-                    for (doc in docs) {
-                        newAmount += doc.data["amount"].toString().toInt()
-                        //Log.d("FirestoreCurrentDayAmount", "${stateAmount.value} += ${doc.data["amount"].toString().toInt()}")
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("Firestore", "Listen failed.", e)
+                        _currentWaterAmount.value = 0
+                        return@addSnapshotListener
                     }
-                    stateAmount.value = newAmount
+                    var newAmount = 0
+                    if (snapshot != null) {
+                        for (doc in snapshot.documents) {
+                            newAmount += doc.data?.get("amount").toString().toInt()
+                        }
+                        _currentWaterAmount.value = newAmount
+                    } else {
+                        _currentWaterAmount.value = 0
+                    }
                 }
         }
     }
@@ -196,9 +200,7 @@ open class FirestoreViewModel() : ViewModel() {
         day: Int = 0,
         onResult: (List<Map<String, Any>>) -> Unit
     ) {
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
+
         val list = mutableListOf<Map<String, Any>>()
         if (uid != null) {
             db.collection(uid)
@@ -273,9 +275,6 @@ open class FirestoreViewModel() : ViewModel() {
         onResult: (List<Map<String, Any>>) -> Unit
     ) {
 
-        val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
         val list = mutableListOf<Map<String, Any>>()
 
         if (uid != null) {
