@@ -58,50 +58,6 @@ fun WaterStatusCard(
                 size = 250
             )
         }
-        Box(
-            modifier = Modifier
-                .padding(horizontal = 5.dp).padding(top = 10.dp)
-                .size(100.dp)
-                .background(color = Color(0x2F000000), shape = RoundedCornerShape(20.dp))
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val scale = remember { mutableStateOf(1f) }
-                val scope = rememberCoroutineScope()
-                Box(
-                    contentAlignment = Alignment.Center
-                ){
-                    Image(
-                        painter = painterResource(id = R.drawable.waterdrop),
-                        contentDescription = "Glass of water",
-                        Modifier
-                            .size(60.dp)
-                            .graphicsLayer(scaleX = scale.value, scaleY = scale.value)
-                            .clickable {
-                                onClick()
-                                scope.launch {
-                                    scale.value = 1.2f
-                                    delay(100)
-                                    scale.value = 1f
-                                }
-                            }
-                    )
-                    Text(
-                        text = "+",
-                        fontSize = 40.sp,
-                        color = Color.Black
-                    )
-                }
-                Text(
-                    text = "${addWaterAmount.value}ml",
-                    fontSize = 30.sp,
-                    color = Color.Black
-                )
-            }
-
-        }
+        AddWaterIcon(onClick, addWaterAmount)
     }
 }

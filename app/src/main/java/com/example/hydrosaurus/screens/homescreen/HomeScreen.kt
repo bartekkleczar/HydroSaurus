@@ -32,6 +32,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,7 @@ import com.example.hydrosaurus.screens.homescreen.composables.*
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -71,12 +73,17 @@ fun HomeScreen(
     val goal = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
 
-    firestoreViewModel.getFromUserCurrentDayAmount(
-        waterAmount,
-        year = LocalDateTime.now().year,
-        month = LocalDateTime.now().monthValue,
-        day = LocalDateTime.now().dayOfMonth,
-    )
+    LaunchedEffect(Unit) {
+        while(true){
+            firestoreViewModel.getFromUserCurrentDayAmount(
+                waterAmount,
+                year = LocalDateTime.now().year,
+                month = LocalDateTime.now().monthValue,
+                day = LocalDateTime.now().dayOfMonth,
+            )
+            delay(100)
+        }
+    }
 
     val items = listOf(
         NavigationItem(
