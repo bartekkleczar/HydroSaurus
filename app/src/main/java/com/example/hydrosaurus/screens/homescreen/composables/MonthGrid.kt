@@ -75,11 +75,11 @@ fun MonthGrid(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp)
-                    .padding(horizontal = 5.dp)
+                    .padding(horizontal = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 for (i in listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")) {
                     Row(
-                        modifier = Modifier.width(55.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(text = i, color = Color.Black, fontSize = 20.sp)
@@ -89,7 +89,7 @@ fun MonthGrid(
             }
         }
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 55.dp),
+            columns = GridCells.Fixed(7),
             modifier = Modifier
                 .height(350.dp)
                 .fillMaxWidth()
