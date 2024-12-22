@@ -38,7 +38,7 @@ fun RoundedCircularProgressIndicator(
         contentAlignment = Alignment.Center
     ){
         Canvas(
-            modifier = Modifier.size(160.dp)
+            modifier = Modifier.size((size*0.85f).dp)
         ) {
             val progressState = progress.value.toFloat()/goal.value.checkIfAbleToFloat()
             val gradientBrush = Brush.sweepGradient(
@@ -68,12 +68,12 @@ fun RoundedCircularProgressIndicator(
         ) {
             Text(
                 text = "${waterAmount.value}ml",
-                fontSize = 30.sp,
+                fontSize = 50.sp,
                 color = Color.Black
             )
             Text(
                 text = "/${goal.value.checkIfAbleToFloat()}ml",
-                fontSize = 30.sp,
+                fontSize = 40.sp,
                 color = Color.Black
             )
 

@@ -3,6 +3,7 @@ package com.example.hydrosaurus.screens.homescreen.composables
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hydrosaurus.R
@@ -40,8 +43,9 @@ fun WaterStatusCard(
     goal: MutableState<String>,
     onClick: () -> Unit
 ) {
-    val elementsSize = 190
-    Row(Modifier.padding(horizontal = 5.dp)){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
         Box(
             modifier = Modifier
                 .padding(horizontal = 5.dp)
@@ -51,41 +55,49 @@ fun WaterStatusCard(
                 progress = waterAmount,
                 goal = goal,
                 waterAmount = waterAmount,
-                size = elementsSize
+                size = 250
             )
         }
         Box(
             modifier = Modifier
-                .padding(horizontal = 5.dp)
-                .size(elementsSize.dp)
-                .background(color = Color(0x2F000000), shape = CircleShape)
+                .padding(horizontal = 5.dp).padding(top = 10.dp)
+                .size(100.dp)
+                .background(color = Color(0x2F000000), shape = RoundedCornerShape(20.dp))
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxSize()
             ) {
                 val scale = remember { mutableStateOf(1f) }
                 val scope = rememberCoroutineScope()
-                Image(
-                    painter = painterResource(id = R.drawable.waterdrop),
-                    contentDescription = "Glass of water",
-                    Modifier
-                        .size(120.dp)
-                        .padding(top = 30.dp)
-                        .graphicsLayer(scaleX = scale.value, scaleY = scale.value)
-                        .clickable {
-                            onClick()
-                            scope.launch {
-                                scale.value = 1.2f
-                                delay(100)
-                                scale.value = 1f
+                Box(
+                    contentAlignment = Alignment.Center
+                ){
+                    Image(
+                        painter = painterResource(id = R.drawable.waterdrop),
+                        contentDescription = "Glass of water",
+                        Modifier
+                            .size(60.dp)
+                            .graphicsLayer(scaleX = scale.value, scaleY = scale.value)
+                            .clickable {
+                                onClick()
+                                scope.launch {
+                                    scale.value = 1.2f
+                                    delay(100)
+                                    scale.value = 1f
+                                }
                             }
-                        }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
+                    )
+                    Text(
+                        text = "+",
+                        fontSize = 40.sp,
+                        color = Color.Black
+                    )
+                }
                 Text(
                     text = "${addWaterAmount.value}ml",
-                    fontSize = 40.sp,
+                    fontSize = 30.sp,
                     color = Color.Black
                 )
             }
