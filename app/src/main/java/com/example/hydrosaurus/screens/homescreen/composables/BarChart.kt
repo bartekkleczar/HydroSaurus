@@ -30,10 +30,6 @@ fun BarChart(firestoreViewModel: FirestoreViewModel, modifier: Modifier = Modifi
     val maxHeight = remember { mutableStateOf(0f) }
     val week = remember { mutableStateOf<MutableMap<String, Int>>(mutableMapOf()) }
 
-    LaunchedEffect(Unit) {
-        firestoreViewModel.getSumOfAmountsForLastWeek()
-    }
-
     LaunchedEffect(lastWeekSums) {
         if (lastWeekSums.isNotEmpty()) {
             maxHeight.value = lastWeekSums.maxOf { it.second }.toFloat()
