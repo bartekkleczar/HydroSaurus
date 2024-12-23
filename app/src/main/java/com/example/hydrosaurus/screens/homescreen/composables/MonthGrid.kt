@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,16 +44,9 @@ fun MonthGrid(
     month: Int = LocalDate.now().monthValue
 ) {
     val records = remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    val monthRecords by firestoreViewModel.monthRecords.collectAsState()
     LaunchedEffect(Unit) {
-        while (true) {
-            firestoreViewModel.getFromUserListOfRecordsAccMonths(
-                year,
-                month
-            ) { eachMonth ->
-                records.value = eachMonth
-            }
-            delay(1000)
-        }
+        firestoreViewModel.getFromUserListOfRecordsAccMonths(year, month)
     }
     Column(
         modifier = Modifier
@@ -94,7 +89,7 @@ fun MonthGrid(
                 .height(350.dp)
                 .fillMaxWidth()
         ) {
-            items(records.value) { day ->
+            items(monthRecords) { day ->
                 VerticalGridItem(day = day)
             }
         }
