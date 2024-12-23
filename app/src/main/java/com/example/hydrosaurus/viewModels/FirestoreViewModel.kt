@@ -3,8 +3,12 @@ package com.example.hydrosaurus.viewModels
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.launch
+import androidx.compose.animation.core.snap
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.hydrosaurus.checkDay
 import com.example.hydrosaurus.minutesCorrection
 import com.example.hydrosaurus.toRecordMap
@@ -12,9 +16,12 @@ import com.example.hydrosaurus.weekDayToInt
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -26,6 +33,15 @@ open class FirestoreViewModel() : ViewModel() {
 
     private val _currentWaterAmount = MutableStateFlow(0)
     val currentWaterAmount: StateFlow<Int> = _currentWaterAmount.asStateFlow()
+
+    private val _recordsList = MutableStateFlow<List<Map<String, Any>>>(emptyList())
+    val recordsList: StateFlow<List<Map<String, Any>>> = _recordsList.asStateFlow()
+
+    private val _lastWeekSums = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
+    val lastWeekSums: StateFlow<List<Pair<String, Int>>> = _lastWeekSums.asStateFlow()
+
+    private val _monthRecords = MutableStateFlow<List<Map<String, Any>>>(emptyList())
+    val monthRecords: StateFlow<List<Map<String, Any>>> = _monthRecords.asStateFlow()
 
     fun setup(context: Context) {
         FirebaseApp.initializeApp(context)
@@ -174,19 +190,15 @@ open class FirestoreViewModel() : ViewModel() {
                 .whereEqualTo("year", year)
                 .whereEqualTo("monthValue", month)
                 .whereEqualTo("dayOfMonth", day)
-                .whereEqualTo("isSum", false)
+                .whereEqualTo("isSum", true)
                 .addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         Log.e("Firestore", "Listen failed.", e)
                         _currentWaterAmount.value = 0
                         return@addSnapshotListener
                     }
-                    var newAmount = 0
                     if (snapshot != null) {
-                        for (doc in snapshot.documents) {
-                            newAmount += doc.data?.get("amount").toString().toInt()
-                        }
-                        _currentWaterAmount.value = newAmount
+                        _currentWaterAmount.value = snapshot.documents[0].data?.get("amount").toString().toInt()
                     } else {
                         _currentWaterAmount.value = 0
                     }
@@ -194,52 +206,52 @@ open class FirestoreViewModel() : ViewModel() {
         }
     }
 
-    fun getFromUserListOfRecordsAccDays(
+    fun listenForUserListOfRecordsAccDays(
         year: Int = 0,
         month: Int = 0,
         day: Int = 0,
-        onResult: (List<Map<String, Any>>) -> Unit
     ) {
-
-        val list = mutableListOf<Map<String, Any>>()
+        val uid = auth.currentUser?.uid
         if (uid != null) {
             db.collection(uid)
                 .whereEqualTo("year", year)
                 .whereEqualTo("monthValue", month)
                 .whereEqualTo("dayOfMonth", day)
                 .whereEqualTo("isSum", false)
-                .get()
-                .addOnSuccessListener { docs ->
-                    for (doc in docs) {
-                        list.add(
-                            mapOf(
-                                "amount" to doc.data["amount"].toString().toInt(),
-                                "dayOfWeek" to doc.data["dayOfWeek"].toString(),
-                                "month" to doc.data["month"].toString(),
-                                "hour" to doc.data["hour"].toString().toInt(),
-                                "year" to doc.data["year"].toString().toInt(),
-                                "dayOfMonth" to doc.data["dayOfMonth"].toString().toInt(),
-                                "dayOfYear" to doc.data["dayOfYear"].toString().toInt(),
-                                "monthValue" to doc.data["monthValue"].toString().toInt(),
-                                "minute" to doc.data["minute"].toString().toInt(),
-                                "second" to doc.data["second"].toString().toInt(),
-                            )
-                        )
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("Firestore", "Listen failed.", e)
+                        _recordsList.value = emptyList()
+                        return@addSnapshotListener
                     }
-                    onResult(list)
+                    val list = mutableListOf<Map<String, Any>>()
+                    if (snapshot != null) {
+                        for (doc in snapshot.documents) {
+                            list.add(
+                                mapOf(
+                                    "amount" to doc.data?.get("amount").toString().toInt(),
+                                    "dayOfWeek" to doc.data?.get("dayOfWeek").toString(),
+                                    "month" to doc.data?.get("month").toString(),
+                                    "hour" to doc.data?.get("hour").toString().toInt(),
+                                    "year" to doc.data?.get("year").toString().toInt(),
+                                    "dayOfMonth" to doc.data?.get("dayOfMonth").toString().toInt(),
+                                    "dayOfYear" to doc.data?.get("dayOfYear").toString().toInt(),
+                                    "monthValue" to doc.data?.get("monthValue").toString().toInt(),
+                                    "minute" to doc.data?.get("minute").toString().toInt(),
+                                    "second" to doc.data?.get("second").toString().toInt(),
+                                )
+                            )
+                        }
+                        _recordsList.value = list
+                    } else {
+                        _recordsList.value = emptyList()
+                    }
                 }
-                .addOnFailureListener { exception ->
-                    Log.e("Firestore", "Error fetching data", exception)
-                    onResult(emptyList())
-                }
-        } else {
-            onResult(emptyList())
         }
     }
 
-    fun getSumOfAmountsForLastWeek(onResult: (List<Pair<String, Int>>) -> Unit) {
+    fun getSumOfAmountsForLastWeek() {
         val today = LocalDate.now()
-        val sums = mutableListOf<Pair<String, Int>>()
         val pendingDays = mutableListOf<LocalDate>()
 
         for (i in 0..6) {
@@ -247,87 +259,115 @@ open class FirestoreViewModel() : ViewModel() {
             pendingDays.add(day)
         }
 
-        val resultsCount = arrayOf(0)
-        for (day in pendingDays) {
-            getFromUserListOfRecordsAccDays(
-                year = day.year,
-                month = day.monthValue,
-                day = day.dayOfMonth
-            ) { records ->
+        viewModelScope.launch {
+            val sums = mutableListOf<Pair<String, Int>>()
+            for (day in pendingDays) {
+                val records = getRecordsForDay(day)
                 val sumForDay = records.sumOf { it["amount"] as Int }
                 sums.add("${day.dayOfWeek.toString()[0]}${day.dayOfWeek.toString()[1]}${day.dayOfWeek.toString()[2]}" to sumForDay)
-
-                resultsCount[0]++
-                if (resultsCount[0] == pendingDays.size) {
-                    val orderedSums = sums.sortedBy {
-                        val order = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
-                        order.indexOf(it.first)
-                    }
-                    onResult(orderedSums)
-                }
             }
+            val orderedSums = sums.sortedBy {
+                val order = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+                order.indexOf(it.first)
+            }
+            _lastWeekSums.value = orderedSums
         }
     }
 
-    fun getFromUserListOfRecordsAccMonths(
-        year: Int,
-        monthValue: Int,
-        onResult: (List<Map<String, Any>>) -> Unit
-    ) {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun getRecordsForDay(day: LocalDate): List<Map<String, Any>> {
+        val uid = auth.currentUser?.uid
         val list = mutableListOf<Map<String, Any>>()
-
         if (uid != null) {
-            db.collection(uid)
-                .whereEqualTo("year", year)
-                .whereEqualTo("monthValue", monthValue)
-                .whereEqualTo("isSum", true)
-                .get()
-                .addOnSuccessListener { docs ->
-                    for (doc in docs) {
-                        list.add(doc.data)
-                    }
-                    val sortedList = list.sortedBy {
-                        it["dayOfMonth"].toString().toInt()
-                    }
-
-                    /*for(el in sortedList){
-                        Log.d("Firebase", "${el["dayOfMonth"]} -- ${el["amount"]}")
-                    }*/
-                    var monthRecords = mutableListOf<Map<String, Any>>()
-                    for (i in 1..31) {
-                        if (sortedList.isNotEmpty()) {
-                            monthRecords.add(sortedList.checkDay(i) {
-                                LocalDate.of(year, monthValue, i).toRecordMap()
-                            })
-                        }
-                    }
-
-                    val firstDayOfMonth = LocalDate.of(year, monthValue, 1).toRecordMap()
-                    if (firstDayOfMonth["dayOfWeek"] != "MONDAY") {
-                        val firstDayNumber = weekDayToInt(firstDayOfMonth["dayOfWeek"].toString())
-                        for (i in 1 until firstDayNumber) {
-                            monthRecords =
-                                (mutableListOf(
+            return suspendCancellableCoroutine { continuation ->
+                db.collection(uid)
+                    .whereEqualTo("year", day.year)
+                    .whereEqualTo("monthValue", day.monthValue)
+                    .whereEqualTo("dayOfMonth", day.dayOfMonth)
+                    .whereEqualTo("isSum", false)
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        if (snapshot != null) {
+                            for (doc in snapshot.documents) {
+                                list.add(
                                     mapOf(
-                                        "amount" to 0,
-                                        "dayOfWeek" to "",
-                                        "month" to "",
-                                        "hour" to 0,
-                                        "year" to "",
-                                        "dayOfMonth" to "",
-                                        "dayOfYear" to "",
-                                        "monthValue" to "",
-                                        "minute" to 0,
-                                        "second" to 0,
+                                        "amount" to doc.data?.get("amount").toString().toInt(),
+                                        "dayOfWeek" to doc.data?.get("dayOfWeek").toString(),
+                                        "month" to doc.data?.get("month").toString(),
+                                        "hour" to doc.data?.get("hour").toString().toInt(),
+                                        "year" to doc.data?.get("year").toString().toInt(),
+                                        "dayOfMonth" to doc.data?.get("dayOfMonth").toString().toInt(),
+                                        "dayOfYear" to doc.data?.get("dayOfYear").toString().toInt(),
+                                        "monthValue" to doc.data?.get("monthValue").toString().toInt(),
+                                        "minute" to doc.data?.get("minute").toString().toInt(),
+                                        "second" to doc.data?.get("second").toString().toInt(),
                                     )
-                                ) + monthRecords).toMutableList()
-
+                                )
+                            }
+                            continuation.resume(list, null)
+                        } else {
+                            continuation.resume(emptyList(), null)
                         }
                     }
+                    .addOnFailureListener { e ->
+                        Log.e("Firestore", "Error fetching records for day $day", e)
+                        continuation.resume(emptyList(), null)
+                    }
+            }
+        } else {
+            return emptyList()
+        }
+    }
 
-                    onResult(monthRecords)
-                }
+    fun getFromUserListOfRecordsAccMonths(year: Int, monthValue: Int) {
+        viewModelScope.launch {
+            val list = mutableListOf<Map<String, Any>>()
+            if (uid != null) {
+                db.collection(uid)
+                    .whereEqualTo("year", year)
+                    .whereEqualTo("monthValue", monthValue)
+                    .whereEqualTo("isSum", true)
+                    .get()
+                    .addOnSuccessListener { docs ->
+                        for (doc in docs) {
+                            list.add(doc.data)
+                        }
+                        val sortedList = list.sortedBy {
+                            it.get("dayOfMonth").toString().toInt()
+                        }
+                        var monthRecords = mutableListOf<Map<String, Any>>()
+                        for (i in 1..31) {
+                            if (sortedList.isNotEmpty()) {
+                                monthRecords.add(sortedList.checkDay(i) {
+                                    LocalDate.of(year, monthValue, i).toRecordMap()
+                                })
+                            }
+                        }
+                        val firstDayOfMonth = LocalDate.of(year, monthValue, 1).toRecordMap()
+                        if (firstDayOfMonth.get("dayOfWeek") != "MONDAY") {
+                            val firstDayNumber = weekDayToInt(firstDayOfMonth.get("dayOfWeek").toString())
+                            for (i in 1 until firstDayNumber) {
+                                monthRecords =
+                                    (mutableListOf(
+                                        mapOf(
+                                            "amount" to 0,
+                                            "dayOfWeek" to "",
+                                            "month" to "",
+                                            "hour" to 0,
+                                            "year" to "",
+                                            "dayOfMonth" to "",
+                                            "dayOfYear" to "",
+                                            "monthValue" to "",
+                                            "minute" to 0,
+                                            "second" to 0,
+                                        )
+                                    ) + monthRecords).toMutableList()
+                            }
+                        }
+                        _monthRecords.value = monthRecords
+                    }
+            }
         }
     }
 }
