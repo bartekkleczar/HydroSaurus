@@ -4,6 +4,7 @@ import BarChart
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -96,19 +97,31 @@ fun HomeScreen(
             icon = painterResource(id = R.drawable.user)
         ),
     )
-
+    val colors =
+        if(isSystemInDarkTheme()) {
+            listOf(
+                Color(0xFF7ABDB2),
+                Color(0xFFACB3B3),
+            )
+        }
+        else {
+            listOf(
+                /*Color(0xFFB0FDF4),
+                Color(0xFF05E4D1),
+                Color(0xFF0EC4E4)*/
+                Color(0xFFD6FFF9),
+                Color(0xFF91FFF3),
+            )
+        }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFB0FDF4),
-                        Color(0xFF05E4D1),
-                        Color(0xFF0EC4E4)
-                    )
+                    colors = colors
                 )
-            )) {
+            )
+    ) {
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
@@ -118,15 +131,15 @@ fun HomeScreen(
         ModalNavigationDrawer(
             drawerContent = {
                 ModalDrawerSheet(
-                    drawerContainerColor = Color(0x5F000000)
+                    drawerContainerColor = Color(0x9F000000)
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
                     items.forEachIndexed { index, item ->
                         NavigationDrawerItem(
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = Color(0x9F000000)
+                                selectedContainerColor = Color.DarkGray
                             ),
-                            label = { Text(text = item.title) },
+                            label = { Text(text = item.title, color = Color.Black) },
                             selected = index == selectedItemIndex,
                             onClick = {
                                 //navController.navigate

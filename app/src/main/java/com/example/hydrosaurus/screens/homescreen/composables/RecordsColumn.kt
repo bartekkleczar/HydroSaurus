@@ -52,8 +52,8 @@ fun RecordsColumn(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .padding(
-                        bottom = if (recordsList.indexOf(record) == recordsList.size - 1) 0.dp else 20.dp,
-                        top = if (recordsList.indexOf(record) == 0) 20.dp else 0.dp
+                        bottom = 20.dp,
+                        top = if (recordsList.indexOf(record) == 0 || recordsList.indexOf(record) == recordsList.size) 20.dp else 0.dp
                     )
                     .height(60.dp),
             ) {
