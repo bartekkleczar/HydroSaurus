@@ -1,5 +1,6 @@
 package com.example.hydrosaurus.screens.homescreen
 
+import BarChart
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +21,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -28,11 +28,11 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +54,6 @@ import com.example.hydrosaurus.screens.homescreen.composables.*
 import com.example.hydrosaurus.ui.theme.HydroSaurusTheme
 import com.example.hydrosaurus.viewModels.AuthViewModel
 import com.example.hydrosaurus.viewModels.FirestoreViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -67,22 +66,19 @@ fun HomeScreen(
 ) {
 
     val addWaterAmount = remember { mutableStateOf(0) }
-    val waterAmount = remember { mutableStateOf(0) }
+    val currentWaterAmount by firestoreViewModel.currentWaterAmount.collectAsState()
     val name = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("name", name)
     val goal = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
 
     LaunchedEffect(Unit) {
-        while(true){
-            firestoreViewModel.getFromUserCurrentDayAmount(
-                waterAmount,
-                year = LocalDateTime.now().year,
-                month = LocalDateTime.now().monthValue,
-                day = LocalDateTime.now().dayOfMonth,
-            )
-            delay(100)
-        }
+        val now = LocalDateTime.now()
+        firestoreViewModel.listenForUserCurrentDayAmount(
+            year = now.year,
+            month = now.monthValue,
+            day = now.dayOfMonth,
+        )
     }
 
     val items = listOf(
@@ -203,18 +199,11 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     WaterStatusCard(
-                        waterAmount = waterAmount,
+                        waterAmount = currentWaterAmount,
                         addWaterAmount = addWaterAmount,
                         goal = goal
                     ) {
-                        waterAmount.value += addWaterAmount.value
                         firestoreViewModel.putUserRecord(addWaterAmount.value)
-                        firestoreViewModel.getFromUserCurrentDayAmount(
-                            waterAmount,
-                            year = LocalDateTime.now().year,
-                            month = LocalDateTime.now().monthValue,
-                            day = LocalDateTime.now().dayOfMonth,
-                        )
                         addWaterAmount.value = 0
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -223,7 +212,7 @@ fun HomeScreen(
                     Box(
                         modifier = Modifier.padding(horizontal = 10.dp)
                     ) {
-                        RecordsColumn(waterAmount, firestoreViewModel = firestoreViewModel)
+                        RecordsColumn(currentWaterAmount, firestoreViewModel = firestoreViewModel)
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     BarChart(firestoreViewModel = firestoreViewModel)
