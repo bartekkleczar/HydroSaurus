@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,16 +44,9 @@ fun MonthGrid(
     month: Int = LocalDate.now().monthValue
 ) {
     val records = remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    val monthRecords by firestoreViewModel.monthRecords.collectAsState()
     LaunchedEffect(Unit) {
-        while (true) {
-            firestoreViewModel.getFromUserListOfRecordsAccMonths(
-                year,
-                month
-            ) { eachMonth ->
-                records.value = eachMonth
-            }
-            delay(1000)
-        }
+        firestoreViewModel.getFromUserListOfRecordsAccMonths(year, month)
     }
     Column(
         modifier = Modifier
@@ -75,11 +70,11 @@ fun MonthGrid(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp)
-                    .padding(horizontal = 5.dp)
+                    .padding(horizontal = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 for (i in listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")) {
                     Row(
-                        modifier = Modifier.width(55.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(text = i, color = Color.Black, fontSize = 20.sp)
@@ -89,12 +84,12 @@ fun MonthGrid(
             }
         }
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 55.dp),
+            columns = GridCells.Fixed(7),
             modifier = Modifier
                 .height(350.dp)
                 .fillMaxWidth()
         ) {
-            items(records.value) { day ->
+            items(monthRecords) { day ->
                 VerticalGridItem(day = day)
             }
         }

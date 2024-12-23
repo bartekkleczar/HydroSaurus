@@ -40,7 +40,7 @@ fun WaterElementCard(record: Map<String, Any>, modifier: Modifier) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF7EDAE6)
+            containerColor = Color(0xFF2196F3)
         )
     ) {
         Row(

@@ -1,8 +1,10 @@
 package com.example.hydrosaurus.screens.homescreen
 
+import BarChart
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +22,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -28,10 +29,11 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,18 +67,20 @@ fun HomeScreen(
 ) {
 
     val addWaterAmount = remember { mutableStateOf(0) }
-    val waterAmount = remember { mutableStateOf(0) }
+    val currentWaterAmount by firestoreViewModel.currentWaterAmount.collectAsState()
     val name = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("name", name)
     val goal = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
 
-    firestoreViewModel.getFromUserCurrentDayAmount(
-        waterAmount,
-        year = LocalDateTime.now().year,
-        month = LocalDateTime.now().monthValue,
-        day = LocalDateTime.now().dayOfMonth,
-    )
+    LaunchedEffect(Unit) {
+        val now = LocalDateTime.now()
+        firestoreViewModel.listenForUserCurrentDayAmount(
+            year = now.year,
+            month = now.monthValue,
+            day = now.dayOfMonth,
+        )
+    }
 
     val items = listOf(
         NavigationItem(
@@ -93,19 +97,31 @@ fun HomeScreen(
             icon = painterResource(id = R.drawable.user)
         ),
     )
-
+    val colors =
+        if(isSystemInDarkTheme()) {
+            listOf(
+                Color(0xFF7ABDB2),
+                Color(0xFFACB3B3),
+            )
+        }
+        else {
+            listOf(
+                /*Color(0xFFB0FDF4),
+                Color(0xFF05E4D1),
+                Color(0xFF0EC4E4)*/
+                Color(0xFFD6FFF9),
+                Color(0xFF91FFF3),
+            )
+        }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFB0FDF4),
-                        Color(0xFF05E4D1),
-                        Color(0xFF0EC4E4)
-                    )
+                    colors = colors
                 )
-            )) {
+            )
+    ) {
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
@@ -115,15 +131,15 @@ fun HomeScreen(
         ModalNavigationDrawer(
             drawerContent = {
                 ModalDrawerSheet(
-                    drawerContainerColor = Color(0x5F000000)
+                    drawerContainerColor = Color(0x9F000000)
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
                     items.forEachIndexed { index, item ->
                         NavigationDrawerItem(
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = Color(0x9F000000)
+                                selectedContainerColor = Color.DarkGray
                             ),
-                            label = { Text(text = item.title) },
+                            label = { Text(text = item.title, color = Color.Black) },
                             selected = index == selectedItemIndex,
                             onClick = {
                                 //navController.navigate
@@ -196,18 +212,11 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     WaterStatusCard(
-                        waterAmount = waterAmount,
+                        waterAmount = currentWaterAmount,
                         addWaterAmount = addWaterAmount,
                         goal = goal
                     ) {
-                        waterAmount.value += addWaterAmount.value
                         firestoreViewModel.putUserRecord(addWaterAmount.value)
-                        firestoreViewModel.getFromUserCurrentDayAmount(
-                            waterAmount,
-                            year = LocalDateTime.now().year,
-                            month = LocalDateTime.now().monthValue,
-                            day = LocalDateTime.now().dayOfMonth,
-                        )
                         addWaterAmount.value = 0
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -216,7 +225,7 @@ fun HomeScreen(
                     Box(
                         modifier = Modifier.padding(horizontal = 10.dp)
                     ) {
-                        RecordsColumn(waterAmount, firestoreViewModel = firestoreViewModel)
+                        RecordsColumn(currentWaterAmount, firestoreViewModel = firestoreViewModel)
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     BarChart(firestoreViewModel = firestoreViewModel)

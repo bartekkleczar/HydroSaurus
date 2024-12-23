@@ -9,11 +9,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,20 +25,17 @@ import java.time.LocalDateTime
 
 @Composable
 fun RecordsColumn(
-    waterAmount: MutableState<Int>,
+    waterAmount: Int,
     year: Int = LocalDateTime.now().year,
     month: Int = LocalDateTime.now().monthValue,
     day: Int = LocalDateTime.now().dayOfMonth,
     firestoreViewModel: FirestoreViewModel
 ) {
-    val list = remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    val recordsList by firestoreViewModel.recordsList.collectAsState()
     LaunchedEffect(Unit) {
-        while (true) {
-            firestoreViewModel.getFromUserListOfRecordsAccDays(year, month, day) { fetchedList ->
-                list.value = fetchedList
-            }
-            delay(100)
-        }
+        firestoreViewModel.listenForUserListOfRecordsAccDays(
+            year, month, day
+        )
     }
     val context = LocalContext.current
 
@@ -51,13 +47,13 @@ fun RecordsColumn(
             .background(color = Color(0x2F000000), shape = RoundedCornerShape(20.dp)),
         verticalArrangement = Arrangement.Top
     ) {
-        items(list.value) { record ->
+        items(recordsList) { record ->
             Card(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .padding(
-                        bottom = if (list.value.indexOf(record) == list.value.size - 1) 0.dp else 20.dp,
-                        top = if (list.value.indexOf(record) == 0) 20.dp else 0.dp
+                        bottom = 20.dp,
+                        top = if (recordsList.indexOf(record) == 0 || recordsList.indexOf(record) == recordsList.size) 20.dp else 0.dp
                     )
                     .height(60.dp),
             ) {
@@ -70,12 +66,6 @@ fun RecordsColumn(
                         minute = record["minute"].toString().toInt(),
                         sec = record["second"].toString().toInt(),
                         context = context
-                    )
-                    firestoreViewModel.getFromUserCurrentDayAmount(
-                        waterAmount,
-                        year = LocalDateTime.now().year,
-                        month = LocalDateTime.now().monthValue,
-                        day = LocalDateTime.now().dayOfMonth,
                     )
                 }
             }
