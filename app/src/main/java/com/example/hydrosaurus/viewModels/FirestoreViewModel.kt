@@ -179,7 +179,7 @@ open class FirestoreViewModel() : ViewModel() {
                     _currentWaterAmount.value = 0
                     return@addSnapshotListener
                 }
-                if (snapshot != null) {
+                if (snapshot != null && !snapshot.isEmpty) {
                     _currentWaterAmount.value = snapshot.documents[0].data?.get("amount").toString().toInt()
                 } else {
                     _currentWaterAmount.value = 0
