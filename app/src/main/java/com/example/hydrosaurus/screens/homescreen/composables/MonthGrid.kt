@@ -43,10 +43,9 @@ fun MonthGrid(
     year: Int = LocalDate.now().year,
     month: Int = LocalDate.now().monthValue
 ) {
-    val records = remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     val monthRecords by firestoreViewModel.monthRecords.collectAsState()
     LaunchedEffect(Unit) {
-        firestoreViewModel.getFromUserListOfRecordsAccMonths(year, month)
+        firestoreViewModel.listenForUserListOfRecordsAccMonths(year, month)
     }
     Column(
         modifier = Modifier
