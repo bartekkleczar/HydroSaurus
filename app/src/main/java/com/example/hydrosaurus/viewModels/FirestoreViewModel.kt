@@ -3,9 +3,6 @@ package com.example.hydrosaurus.viewModels
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.launch
-import androidx.compose.animation.core.snap
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -180,7 +177,8 @@ open class FirestoreViewModel() : ViewModel() {
                     return@addSnapshotListener
                 }
                 if (snapshot != null && !snapshot.isEmpty) {
-                    _currentWaterAmount.value = snapshot.documents[0].data?.get("amount").toString().toInt()
+                    _currentWaterAmount.value =
+                        snapshot.documents[0].data?.get("amount").toString().toInt()
                 } else {
                     _currentWaterAmount.value = 0
                 }
@@ -293,17 +291,22 @@ open class FirestoreViewModel() : ViewModel() {
         }
     }
 
-    fun getFromUserListOfRecordsAccMonths(year: Int, monthValue: Int) {
-        viewModelScope.launch {
-            val list = mutableListOf<Map<String, Any>>()
-            db.collection(uid)
-                .whereEqualTo("year", year)
-                .whereEqualTo("monthValue", monthValue)
-                .whereEqualTo("isSum", true)
-                .get()
-                .addOnSuccessListener { docs ->
-                    for (doc in docs) {
-                        list.add(doc.data)
+    fun listenForUserListOfRecordsAccMonths(year: Int, monthValue: Int) {
+
+        db.collection(uid)
+            .whereEqualTo("year", year)
+            .whereEqualTo("monthValue", monthValue)
+            .whereEqualTo("isSum", true)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Listen failed.", e)
+                    _monthRecords.value = emptyList()
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val list = mutableListOf<Map<String, Any>>()
+                    for (doc in snapshot.documents) {
+                        doc.data?.let { list.add(it) }
                     }
                     val sortedList = list.sortedBy {
                         it.get("dayOfMonth").toString().toInt()
@@ -318,7 +321,8 @@ open class FirestoreViewModel() : ViewModel() {
                     }
                     val firstDayOfMonth = LocalDate.of(year, monthValue, 1).toRecordMap()
                     if (firstDayOfMonth.get("dayOfWeek") != "MONDAY") {
-                        val firstDayNumber = weekDayToInt(firstDayOfMonth.get("dayOfWeek").toString())
+                        val firstDayNumber =
+                            weekDayToInt(firstDayOfMonth.get("dayOfWeek").toString())
                         for (i in 1 until firstDayNumber) {
                             monthRecords =
                                 (mutableListOf(
@@ -339,6 +343,7 @@ open class FirestoreViewModel() : ViewModel() {
                     }
                     _monthRecords.value = monthRecords
                 }
-        }
+            }
+
     }
 }
