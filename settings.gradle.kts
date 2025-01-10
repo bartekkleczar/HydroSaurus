@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "HydroSaurus"
 include(":app")
+include(":notifications")

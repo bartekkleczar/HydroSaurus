@@ -1,6 +1,7 @@
 package com.example.hydrosaurus.screens.homescreen
 
 import BarChart
+import NotificationHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -72,6 +75,7 @@ fun HomeScreen(
     firestoreViewModel.getFromUserDocumentProperty("name", name)
     val goal = remember { mutableStateOf("") }
     firestoreViewModel.getFromUserDocumentProperty("goal", goal)
+    val notificationHandler = NotificationHandler(LocalContext.current)
 
     LaunchedEffect(Unit) {
         val now = LocalDateTime.now()
@@ -193,6 +197,16 @@ fun HomeScreen(
                                     imageVector = Icons.Default.Menu,
                                     contentDescription = "Menu",
                                     tint = Color.Black
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = {
+                                notificationHandler.showNotification()
+                            }){
+                                Icon(
+                                    imageVector = Icons.Outlined.Notifications,
+                                    contentDescription = "Notifications"
                                 )
                             }
                         },
